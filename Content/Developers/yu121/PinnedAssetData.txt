@@ -1,0 +1,6 @@
+/Game/Main/Core/AbilitySystem/Abilities/BP_AbilityRegistry 0
+/Game/Main/Core/AbilitySystem/Abilities/AbilityActions/NewBlueprint 0
+/Game/Main/Core/AbilitySystem/Abilities/Tests/TestFireDash 0
+/Game/Main/Core/AbilitySystem/Abilities/Tests/TestFirePrimary 0
+/Game/Main/Core/AbilitySystem/Abilities/Tests/TestFireSecondary 0
+/Game/TopDown/Blueprints/BP_TopDownCharacter 0

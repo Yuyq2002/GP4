@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Main/AI/DefaultEnemyAI.h"
+#include "Main/AI/SimpleAI/Default/SimpleDefaultAI.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "EnemyLookup.generated.h"
 
@@ -20,16 +20,19 @@ private:
 	GENERATED_BODY()
 
 public:
-	TMap<FIntVector, TArray<ADefaultEnemyAI*>> TileMap;
+	TMap<FIntVector, TArray<ASimpleDefaultAI*>> TileMap;
 
 	UPROPERTY(BlueprintReadOnly)
-	int TileSize = 100;
+	int TileSize = 1000;
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Tile")
-	void AddAIToTile(FVector Position, ADefaultEnemyAI* ai);
+	void AddAIToTile(FVector Position, ASimpleDefaultAI* ai);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Tile")
-	void RemoveAIFromTile(FVector Position, ADefaultEnemyAI* ai);
+	void RemoveAIFromTile(FVector Position, ASimpleDefaultAI* ai);
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveAllReference(ASimpleDefaultAI* ai);
 
 	UFUNCTION(BlueprintCallable, Category = "Tile")
 	FIntVector WorldToTile(FVector WorldLocation);
@@ -38,9 +41,8 @@ public:
 	FVector TileToWorld(FIntVector TileLocation);
 	
 	UFUNCTION(BlueprintCallable, Category = "Tile")
-	TArray<ADefaultEnemyAI*> FindContentOfTile(FIntVector Tile);
+	TArray<ASimpleDefaultAI*> FindContentOfTile(FIntVector Tile);
 
 	UFUNCTION(BlueprintCallable, Category = "Tile")
-	TArray<ADefaultEnemyAI*> FindAllContentInRadius(FVector center, int tilesDistanceAway);
-	
+	TArray<ASimpleDefaultAI*> FindAllContentInRadius(FVector center, int tilesDistanceAway);
 };

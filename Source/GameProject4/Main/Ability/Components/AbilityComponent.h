@@ -20,8 +20,7 @@ class GAMEPROJECT4_API UAbilityComponent : public UActorComponent
 	GENERATED_BODY()
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStarChangedSignature, const TArray<FStarStats>&, NewList);
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStarRotatedSignature, EElement, PrimaryElement);
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUltimateChangedSignature, EElement, PrimaryElement, EElement, SecondaryElement);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStarRotatedSignature, EElement, PrimaryElement, EElement, SecondaryElement);
 
 public:	
 	// Sets default values for this component's properties
@@ -29,11 +28,11 @@ public:
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
 
 public:	
 	FStarStats** EvaluateActionToSet(EActionType ActionType);
@@ -55,17 +54,11 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void RotateElement();
 
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void StartRechargeTimer();
-
 	UFUNCTION(Client, Reliable)
 	void SyncRotation();
 
 	UFUNCTION(Client, Reliable)
 	void SyncStarStats(const TArray<FStarStats>& NewList);
-
-	UFUNCTION(Client, Reliable)
-	void SyncUltimate(EElement Primary, EElement Secondary);
 
 	UFUNCTION(Server, Unreliable, BlueprintCallable)
 	void PrimaryAction();
@@ -85,9 +78,6 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintReadWrite)
 	FOnStarRotatedSignature OnStarRotatedDelegate;
 
-	UPROPERTY(BlueprintAssignable, BlueprintReadWrite)
-	FOnUltimateChangedSignature OnUltimateChangedDelegate;
-
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	UDataTable* StarDataTable;
@@ -104,10 +94,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	float RechargeRate;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
-	float RotateThreshold;
-
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	TArray<EElement> UnlockedElements;
 
 	FActiveUltimate ActiveUltimate;
@@ -116,6 +103,4 @@ private:
 	int MaxStars = 3;
 	FStarStats *PrimaryStar = nullptr, *SecondaryStar = nullptr, *DashStar = nullptr;
 	float PrimaryCooldown = 0, SecondaryCooldown = 0, DashCooldown = 0;
-	float Timer;
-	bool RotateKeyDown = false;
 };

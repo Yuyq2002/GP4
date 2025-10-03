@@ -36,6 +36,9 @@ struct FStarStats
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	UAbilityData* DashAbility;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bRegenMana;
 };
 
 USTRUCT(BlueprintType)

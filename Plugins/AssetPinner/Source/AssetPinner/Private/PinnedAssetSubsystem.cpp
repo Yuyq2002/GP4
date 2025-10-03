@@ -21,6 +21,20 @@ void UPinnedAssetSubsystem::AddAssetPath(FString Path, bool IsPinned)
 		if (OnListChangedDelegate.IsBound())
 			OnListChangedDelegate.Execute(AssetPathList, StatusList);
 	}
+	else
+	{
+		int Index = -1;
+		if (AssetPathList.Find(Path, Index))
+		{
+			if (StatusList[Index] || !IsPinned)
+				return;
+
+			StatusList[Index] = true;
+
+			if (OnListChangedDelegate.IsBound())
+				OnListChangedDelegate.Execute(AssetPathList, StatusList);
+		}
+	}
 }
 
 void UPinnedAssetSubsystem::RemoveAssetPath(FString Path)

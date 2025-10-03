@@ -24,6 +24,18 @@ void UPinnedAssetSlotBase::SetParentRef(UPinnedSectionBase* ParentReference)
 	ParentRef = ParentReference;
 }
 
+void UPinnedAssetSlotBase::RecheckInput(FKey Input)
+{
+	UPinnedAssetSubsystem* Subsystem = GEditor->GetEditorSubsystem<UPinnedAssetSubsystem>();
+	if (!Subsystem)
+		return;
+
+	if (Input == EKeys::LeftMouseButton)
+		Subsystem->MoveAssetPath(AssetPath);
+	else if (Input == EKeys::RightMouseButton)
+		Subsystem->RemoveAssetPath(AssetPath);
+}
+
 FReply UPinnedAssetSlotBase::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	if (!InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
@@ -65,11 +77,16 @@ FReply UPinnedAssetSlotBase::NativeOnMouseButtonDoubleClick(const FGeometry& InG
 
 FReply UPinnedAssetSlotBase::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	if (!ParentRef->GetEditMode())
+	EditState State = ParentRef->CheckInEditMode();
+
+	if (!GEditor || State == EditState::NotInEditMode)
 		return FReply::Handled();
 
-	if (!GEditor)
+	if (State == EditState::Unfocused)
+	{
+		ParentRef->AddRecheck(this, InMouseEvent.GetEffectingButton());
 		return FReply::Handled();
+	}
 
 	UPinnedAssetSubsystem* Subsystem = GEditor->GetEditorSubsystem<UPinnedAssetSubsystem>();
 	if (!Subsystem)

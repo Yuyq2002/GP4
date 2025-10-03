@@ -18,6 +18,22 @@ class GAMEPROJECT4_API AInterfacePlayerController : public APlayerController
 
 public:
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame, Category="SaveSystem")
+	FString SaveId;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame, Category="SaveSystem")
+	int32 checkPoint;
+
+	// Client → Server request
+	UFUNCTION(Server, Reliable)
+	void ServerRequestSaveLoad(bool bSave, bool bLoad, bool bReset);
+
+	// Server applies save/load/reset
+	void ExecuteSaveLoad(int savepoint);
+
+
+
+
 private:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* inPawn) override;

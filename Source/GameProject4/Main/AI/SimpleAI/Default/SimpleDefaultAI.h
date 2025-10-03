@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "SimpleAiController.h"
 #include "GameFramework/Character.h"
+#include "Main/Ability/Enums/AiState.h"
+#include "Main/Ability/Enums/PatrollBehaviour.h"
+#include "Main/Ability/Enums/TargetInRange.h"
 #include "Main/AI/Components/AbilityManagerComponent.h"
 #include "Main/AI/Components/PatrolPoint.h"
 #include "Main/Core/ExperienceSystem/ExperienceGranter.h"
@@ -16,54 +19,42 @@ class UAISenseConfig_Sight;
 class ASimpleDefaultAI;
 class ASimpleAiController;
 
-UENUM(BlueprintType)
-enum class EAIState : uint8
-{
-	Idle			UMETA(DisplayName = "Idle"),
-	Patrol			UMETA(DisplayName = "Patrol"),
-	Hunting			UMETA(DisplayName = "Hunting")
-};
-
-UENUM(BlueprintType)
-enum class ETargetInRange : uint8
-{
-	Far			UMETA(DisplayName = "Far"),
-	Close		UMETA(DisplayName = "Close"),
-	InRange		UMETA(DisplayName = "InRange")
-};
-
 USTRUCT(BlueprintType)
 struct FWorldState
 {
 	GENERATED_BODY()
 
 	FWorldState()
-	: ClosestPlayerDistance(MAX_FLT)
-	, ClosestPlayer(nullptr)
-	, PlayerInLineOfSight(false)
-	, CurrentBehaviour(EAIState::Idle)
-	{}
-	
+		: ClosestPlayerDistance(MAX_FLT)
+		  , ClosestPlayer(nullptr)
+		  , CurrentBehaviour(EAIState::Idle)
+		  ,	CurrentTile()
+		  , PreviousTile()
+	{
+	}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TObjectPtr<ACasterCharacter>> PlayersInWorld;
+	TArray<TObjectPtr<APawn>> PlayersInWorld;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ClosestPlayerDistance;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<ACasterCharacter> ClosestPlayer;
+	TObjectPtr<APawn> ClosestPlayer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<ACasterCharacter> furthestPlayer;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool PlayerInLineOfSight;
+	TObjectPtr<APawn> furthestPlayer;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EAIState CurrentBehaviour;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TObjectPtr<ASimpleDefaultAI>> NearbyAI;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|Tile")
+	FIntVector CurrentTile;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|Tile")
+	FIntVector PreviousTile;
 };
 
 USTRUCT(BlueprintType)
@@ -86,13 +77,7 @@ struct FAttackDistance
 	ETargetInRange TargetInRange;
 };
 
-UENUM(BlueprintType)
-enum class EPatrolBehaviour : uint8
-{
-	RoundRobin			UMETA(DisplayName = "RoundRobin"),
-	BackAndForth		UMETA(DisplayName = "BackAndForth"),
-	RandomIndex			UMETA(DisplayName = "RandomIndex")
-};
+
 
 USTRUCT(BlueprintType)
 struct FCurrentPatrolPoint
@@ -130,7 +115,7 @@ struct FCurrentPatrolPoint
 		int Direction = 1;
 };
 
-UCLASS()
+UCLASS(BlueprintType)
 class GAMEPROJECT4_API ASimpleDefaultAI : public ACharacter,  public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
@@ -164,6 +149,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AI|Behaviour")
 	void SetHunting(bool hunting);
 
+	UFUNCTION(BlueprintCallable, Category = "AI|Behaviour")
+	void StartAllActions();
+	
+	UFUNCTION(BlueprintCallable, Category = "AI|Behaviour")
+	void StopAllActions();
+	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category="Structs")
 	FWorldState worldState;
 
@@ -184,10 +175,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Controller")
 	ASimpleAiController* CurrentController;
+
+	UFUNCTION(BlueprintCallable, Category = "AI|Tile")
+	void OnMove();
+
+	UFUNCTION(Server, Unreliable, Category = "AI|Tile")
+	void Server_OnMove();
+
 private:
 	UPROPERTY()
 	FGenericTeamId TeamId;
-
-	UPROPERTY()
-	TArray<AActor*> targetsInLineOfSight;
 };

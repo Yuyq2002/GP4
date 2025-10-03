@@ -29,39 +29,6 @@ void USkillData::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEv
 #endif
 bool USkillData::ArePrerequisitesUnlockedByTags(const USkillData* Data, const FGameplayTag& SkillTag, const FGameplayTagContainer& UnlockedTags)
 {
-	// if (!ForSkill || !ForSkill->SkillData)
-	// {
-	// 	return false;
-	// }
-	//
-	// const TArray<USkillData*>& PrereqDatas = ForSkill->SkillData->PrerequisiteSkills;
-	//
-	// if (PrereqDatas.Num() == 0)
-	// {
-	// 	return true;
-	// }
-	//
-	// for (const USkillData* PrereqData : PrereqDatas)
-	// {
-	// 	bool isPrereqMet = false;
-	//
-	// 	for (const USkill* ConnectedSkill : ForSkill->ConnectedSkills)
-	// 	{
-	// 		if (IsValid(ConnectedSkill) &&
-	// 			ConnectedSkill->SkillData == PrereqData &&
-	// 			ConnectedSkill->IsUnlocked())
-	// 		{
-	// 			isPrereqMet = true;
-	// 			break;
-	// 		}
-	// 	}
-	//
-	// 	if (!isPrereqMet)
-	// 	{
-	// 		return false; 
-	// 	}
-	// }
-	// return true;
 	if (!Data)
 	{
 		return false;

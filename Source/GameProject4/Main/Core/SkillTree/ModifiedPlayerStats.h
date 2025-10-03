@@ -5,9 +5,20 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "PlayerStatsStruct.h"
-#include "ModifiedPlayerStats.generated.h"
 
+#include "GameProject4/Main/Core/SkillTree/PlayerStatsStruct.h"
+#include "ModifiedPlayerStats.generated.h"
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStatChanged, FName, StatName, float, NewValue);
+
+
+// USTRUCT(BlueprintType)
+// struct FStatKeySelector
+// {
+// 	GENERATED_BODY()
+//
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 	FName SelectedKey;
+// };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class GAMEPROJECT4_API UModifiedPlayerStats : public UActorComponent
@@ -21,57 +32,72 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
+	TArray<FName> AvailableStatKeys;
+	
+	UPROPERTY()
+	TMap<FName, float> BaseStats;
+
+	UPROPERTY()
+	TMap<FName, float> CurrentStats;
+
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
+	// FStatKeySelector StatToUse;
+	//
 	// Stat variables
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifiedPlayerStats", meta=(AllowPrivateAccess="true"))
-	float Damage;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifiedPlayerStats", meta=(AllowPrivateAccess="true"))
-	float WalkSpeed;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifiedPlayerStats", meta=(AllowPrivateAccess="true"))
-	float ProjectileSpeed;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifiedPlayerStats", meta=(AllowPrivateAccess="true"))
+	// float Damage;
+	//
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifiedPlayerStats", meta=(AllowPrivateAccess="true"))
+	// float WalkSpeed;
+	//
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifiedPlayerStats", meta=(AllowPrivateAccess="true"))
+	// float ProjectileSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifiedPlayerStats")
-	FPlayerStatsStruct BaseStats;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="ModifiedPlayerStats")
-	FPlayerStatsStruct CurrentStats;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifiedPlayerStats")
+	// FPlayerStatsStruct BaseStats;
+	//
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="ModifiedPlayerStats")
+	// FPlayerStatsStruct CurrentStats;
 
 
 public:
-	
-UPROPERTY(BlueprintAssignable, Category="ModifiedPlayerStats")
-FOnStatChanged OnStatChanged;
+
+	UPROPERTY(BlueprintAssignable, Category="ModifiedPlayerStats")
+	FOnStatChanged OnStatChanged;
+
+	UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
+	void ResetStatsToBase();
+
+	UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
+	TMap<FName, float> GetCurrentStats() const;
+
+	UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
+	void SetCurrentStats(const TMap<FName, float>& NewStats);
+
+	UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
+	float GetStat(FName StatName) const;
+
+	UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
+	void SetStat(FName StatName, float NewValue);
+
+	UFUNCTION(BlueprintCallable, Category="Stats")
+	TArray<FName> GetAvailableStatKeys() const;
+
+// UPROPERTY(BlueprintAssignable, Category="ModifiedPlayerStats")
+// FOnStatChanged OnStatChanged;
+//
+//
+// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
+// void ResetStatsToBase();
 
 
-UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
-void ResetStatsToBase();
+// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
+// FPlayerStatsStruct GetCurrentStats() const;
 
-
-UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
-FPlayerStatsStruct GetCurrentStats() const;
-
-UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
-void SetCurrentStats(const FPlayerStatsStruct& NewStats);
-		
-	// Getter and setter functions for each stat
-
-	// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
-	// float GetDamage() const;
-	//
-	// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
-	// void SetDamage(float NewDamage);
-	//
-	// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
-	// float GetWalkSpeed() const;
-	//
-	// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
-	// void SetWalkSpeed(float NewWalkSpeed);
-	//
-	// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
-	// float GetProjectileSpeed() const;
-	//
-	// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
-	// void SetProjectileSpeed(float NewProjectileSpeed);
-	//s
+// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
+// void SetCurrentStats(const FPlayerStatsStruct& NewStats);
+// 	
 };
+
+

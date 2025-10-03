@@ -65,4 +65,7 @@ protected:
 	UFUNCTION()
 	void OnSphereEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 					 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION(Server, Unreliable, BlueprintCallable)
+	void ServerExecuteInteract(AActor* InFocusedActor);
 };

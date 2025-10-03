@@ -8,6 +8,14 @@
 
 class UWrapBox;
 class UEditorUtilityButton;
+class UPinnedAssetSlotBase;
+
+enum class EditState
+{
+	Unfocused,
+	NotInEditMode,
+	InEditMode
+};
 
 /**
  * 
@@ -19,7 +27,8 @@ class ASSETPINNER_API UPinnedSectionBase : public UEditorUtilityWidget
 	
 public:
 	virtual void NativeConstruct();
-	bool GetEditMode();
+	EditState CheckInEditMode();
+	void AddRecheck(UPinnedAssetSlotBase* Caller, FKey Input);
 
 private:
 	UFUNCTION()
@@ -31,10 +40,10 @@ private:
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent);
 	virtual FReply NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent);
-
+	virtual void NativeOnFocusLost(const FFocusEvent& InFocusEvent) override;
 
 private:
-	bool EditMode;
+	EditState EditMode;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
 	TSubclassOf<UEditorUtilityWidget> AssetSlotWidget;
@@ -47,4 +56,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true, BindWidget))
 	UEditorUtilityButton* ClearButton;
+
+	UPROPERTY()
+	UPinnedAssetSlotBase* RecallEditAction;
+
+	UPROPERTY()
+	FKey MouseInput;
 };

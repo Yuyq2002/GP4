@@ -26,9 +26,16 @@ void UPinnedSectionBase::NativeConstruct()
 	ClearButton->OnClicked.AddDynamic(this, &UPinnedSectionBase::OnClearButtonClicked);
 }
 
-bool UPinnedSectionBase::GetEditMode()
+EditState UPinnedSectionBase::CheckInEditMode()
 {
 	return EditMode;
+}
+
+
+void UPinnedSectionBase::AddRecheck(UPinnedAssetSlotBase* Caller, FKey Input)
+{
+	RecallEditAction = Caller;
+	MouseInput = Input;
 }
 
 void UPinnedSectionBase::OnListChangedCallback(const TArray<FString>& List, const TArray<bool>& StatusList)
@@ -79,13 +86,21 @@ void UPinnedSectionBase::OnClearButtonClicked()
 FReply UPinnedSectionBase::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 	if (InKeyEvent.GetKey() == EKeys::LeftControl)
-		EditMode = true;
+	{
+		EditMode = EditState::InEditMode;
+		RecallEditAction->RecheckInput(MouseInput);
+	}
 	return FReply::Handled();
 }
 
 FReply UPinnedSectionBase::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 	if (InKeyEvent.GetKey() == EKeys::LeftControl)
-		EditMode = false;
+		EditMode = EditState::NotInEditMode;
 	return FReply::Handled();
+}
+
+void UPinnedSectionBase::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
+{
+	EditMode = EditState::Unfocused;
 }

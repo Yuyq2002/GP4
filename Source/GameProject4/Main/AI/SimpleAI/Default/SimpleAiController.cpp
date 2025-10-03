@@ -78,7 +78,7 @@ void ASimpleAiController::AssignClosestPlayer() const
 	auto players = CurrentPawn->worldState.PlayersInWorld;
 
 
-	for (TObjectPtr<ACasterCharacter> CasterCharacter : players)
+	for (auto CasterCharacter : players)
 	{
 		float Distance = FVector::Dist(CasterCharacter->GetActorLocation(), CurrentPawn->GetActorLocation());
 		if (CasterCharacter != CurrentPawn->worldState.ClosestPlayer)
@@ -117,9 +117,6 @@ void ASimpleAiController::AssignClosestPlayer() const
 
 void ASimpleAiController::AddPlayers_Implementation() const
 {
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Some debug message!"));	
-	
 	TArray<AActor*> FoundPlayers;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACasterCharacter::StaticClass(), FoundPlayers);
 

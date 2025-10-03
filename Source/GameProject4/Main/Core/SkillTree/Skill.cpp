@@ -5,6 +5,7 @@
 #include "SkillData.h"
 #include "GameProject4/Main/Core/ExperienceSystem/ExperienceContainer.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
 #include "GameFrameWork/Character.h"
 
 class UExperienceContainer;
@@ -15,6 +16,11 @@ void USkill::NativeConstruct()
 	if (Button)
 	{
 		Button->OnClicked.AddDynamic(this, &USkill::OnButtonClicked);
+	}
+	if (SkillCostText)
+	{
+		int32 Cost = GetSkillCost();
+		SkillCostText->SetText(FText::AsNumber(Cost));
 	}
 }
 
@@ -29,24 +35,6 @@ bool USkill::IsPurchasable()
 	{
 		return false;
 	}
-	//Prevents nodes from being picked out of sequence
-	// if (!USkillData::ArePrerequisitesUnlocked(this, ConnectedSkills))
-	// {
-	// 	return false;
-	// }
-	// if (PrerequisiteSkills.Num() > 0)
-	// {
-	// 	for (USkill* Prereq : PrerequisiteSkills)
-	// 	{
-	// 		if (IsValid(Prereq))
-	// 		{
-	// 			if (!Prereq->isSkillUnlocked)
-	// 			{
-	// 				return false;
-	// 			}
-	// 		}
-	// 	}
-	// }
 	
 	ACharacter* Character = Cast<ACharacter>(GetOwningPlayerPawn());
 	if (!Character){return false;}
@@ -58,13 +46,6 @@ bool USkill::IsPurchasable()
 		return false;
 	}
 	
-	// reads from SkillData
-	// const int32 CostFromData = SkillData->Cost;
-	// return ExpComp->GetSkillPoints() >= CostFromData;
-	// if (const FSkillDefinition* Def = SkillData->Skills.Find(SkillTag))
-	// {
-	// 	return ExpComp->GetSkillPoints() >= Def->Cost;
-	// }
 	if (const FSkillDefinition* Def = SkillData->Skills.Find(SkillTag))
 	{
 		if (Def->PrerequisiteSkillsContainer.Num() > 0)
@@ -123,8 +104,18 @@ void USkill::PurchaseSkill()
 		}
 		OnSkillClicked.Broadcast(this);
 	}
+}
 
+int32 USkill::GetSkillCost() const
+{
+	if (!SkillData) return 0;
 
+	if (const FSkillDefinition* Def = SkillData->Skills.Find(SkillTag))
+	{
+		return Def->Cost;
+	}
+
+	return 0;
 }
 
 void USkill::OnButtonClicked()

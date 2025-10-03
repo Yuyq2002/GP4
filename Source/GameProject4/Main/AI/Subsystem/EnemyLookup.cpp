@@ -4,17 +4,19 @@
 #include "EnemyLookup.h"
 
 #include "Net/UnrealNetwork.h"
-
-void UEnemyLookup::AddAIToTile_Implementation(FVector Position, ADefaultEnemyAI* ai)
+#include "Debug.h"
+void UEnemyLookup::AddAIToTile_Implementation(FVector Position, ASimpleDefaultAI* ai)
 {
 	FIntVector Tile = WorldToTile(Position);
 	if (TileMap.Contains(Tile))
 	{
-		TileMap.FindRef(Tile).Add(ai);
+		if (ai != nullptr)
+			TileMap[Tile].AddUnique(ai);
 	}
 	else
 	{
-		TileMap.Add(Tile, {ai});
+		if (ai!=nullptr)
+			TileMap.Add(Tile, {ai});
 	}
 }
 
@@ -26,11 +28,23 @@ void UEnemyLookup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 }
 
 
-void UEnemyLookup::RemoveAIFromTile_Implementation(FVector Position, ADefaultEnemyAI* ai)
+void UEnemyLookup::RemoveAIFromTile_Implementation(FVector Position, ASimpleDefaultAI* ai)
 {
 	if (TileMap.Contains(WorldToTile(Position)))
 	{
-		TileMap.FindRef(WorldToTile(Position)).Remove(ai);
+		if (TileMap[WorldToTile(Position)].Remove(ai) < 0)
+			Debug::Log("Not removed: " + ai->GetName());
+	}
+}
+
+void UEnemyLookup::RemoveAllReference(ASimpleDefaultAI* ai)
+{
+	TArray<FIntVector> Keys;
+	TileMap.GenerateKeyArray(Keys);
+
+	for (auto& Key : Keys)
+	{
+		TileMap[Key].Remove(ai);
 	}
 }
 
@@ -52,14 +66,14 @@ FVector UEnemyLookup::TileToWorld(FIntVector TileLocation)
 	return FVector(tileX, tileY, tileZ);
 }
 
-TArray<ADefaultEnemyAI*> UEnemyLookup::FindContentOfTile(FIntVector Tile)
+TArray<ASimpleDefaultAI*> UEnemyLookup::FindContentOfTile(FIntVector Tile)
 {
 	return TileMap.FindRef(Tile);
 }
 
-TArray<ADefaultEnemyAI*> UEnemyLookup::FindAllContentInRadius(FVector center, int tilesDistanceAway)
+TArray<ASimpleDefaultAI*> UEnemyLookup::FindAllContentInRadius(FVector center, int tilesDistanceAway)
 {
-	TArray<ADefaultEnemyAI*> AIInRadius;
+	TArray<ASimpleDefaultAI*> AIInRadius;
 
 	FIntVector CenterTile = WorldToTile(center);
 	FIntVector tileToCheck = CenterTile;
@@ -73,30 +87,11 @@ TArray<ADefaultEnemyAI*> UEnemyLookup::FindAllContentInRadius(FVector center, in
 				tileToCheck = CenterTile + FIntVector(x, y, z);
 
 				if (TileMap.Contains(tileToCheck))
-				{
-					if (GEngine)
-					{
-						GEngine->AddOnScreenDebugMessage(
-							-1,
-							5.f,
-							FColor::Yellow,
-							FString::Printf(TEXT("Tile: X=%d, Y=%d, Z=%d"), tileToCheck.X, tileToCheck.Y, tileToCheck.Z)
-						);
-
-						GEngine->AddOnScreenDebugMessage(
-							-1,
-							5.f,
-							FColor::Yellow,
-							FString::Printf(TEXT("Tile: numItems=%d"), FindContentOfTile(tileToCheck).Num())
-						);
-					}
-
-					UE_LOG(LogTemp, Log, TEXT("Tile: X=%d, Y=%d, Z=%d"), tileToCheck.X, tileToCheck.Y, tileToCheck.Z);
-
-					
+				{					
 					for (auto a : FindContentOfTile(tileToCheck))
 					{
-						AIInRadius.Add(a);
+						if(IsValid(a))
+							AIInRadius.AddUnique(a);
 					}
 				}
 			}

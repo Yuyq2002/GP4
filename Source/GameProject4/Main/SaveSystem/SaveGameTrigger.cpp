@@ -2,10 +2,13 @@
 
 
 #include "SaveGameTrigger.h"
+
+#include "CheckpointSubsystem.h"
+#include "MySaveGame.h"
+#include "SaveGameSubsystem.h"
 #include "Components/SphereComponent.h"
 #include "Components/TextRenderComponent.h"
-#include "SaveGameSubSystem.h"
-#include "GameFramework/SaveGame.h"
+#include "Main/Core/Framework/PlayerController/InterfacePlayerController.h"
 
 // Sets default values
 ASaveGameTrigger::ASaveGameTrigger()
@@ -16,12 +19,6 @@ ASaveGameTrigger::ASaveGameTrigger()
 #endif
 	RootComponent = Root;
 
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Mesh->SetupAttachment(RootComponent);
-
-	Text = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Text"));
-	Text->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
-	Text->SetupAttachment(RootComponent);
 
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere->SetHiddenInGame(false);
@@ -30,48 +27,32 @@ ASaveGameTrigger::ASaveGameTrigger()
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &ASaveGameTrigger::OnBeginOverlap);
 }
 
+void ASaveGameTrigger::BeginPlay()
+{
+	Super::BeginPlay();
+	GetWorld()->GetSubsystem<UCheckpointSubsystem>()->RegisterCheckpoint(this);
+}
+
+
 void ASaveGameTrigger::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor != nullptr && OtherActor != this)
-	{
-		if (bLoadGame)
-		{
-			LoadGame();
-			UE_LOG(LogTemp, Warning, TEXT("Game Save Loaded !"));
-			return;
-		}
-		
-		if (bSaveGame)
-		{
-			SaveGame();
-			UE_LOG(LogTemp, Warning, TEXT("Game Saved !"));
-			return;
-		}
+	if (!HasAuthority()) return;
+	APawn* OverlappingPawn = Cast<APawn>(OtherActor);
+	if (!OverlappingPawn) return;
 
-		if (bResetData)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Game Save Reset !"));
-			ResetData();
-		}
-	}
-}
+	AInterfacePlayerController* PC = Cast<AInterfacePlayerController>(OverlappingPawn->GetController());
+	if (!PC) return;
 
-void ASaveGameTrigger::LoadGame()
-{
 	USaveGameSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	SaveSubsystem->LoadGame();
-}
+	UCheckpointSubsystem* Subsystem = (GetWorld()->GetSubsystem<UCheckpointSubsystem>());
 
-void ASaveGameTrigger::ResetData()
-{
-	USaveGameSubsystem* SaveSubsystem  = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
-	SaveSubsystem->ResetData();
-}
-
-void ASaveGameTrigger::SaveGame()
-{
-	USaveGameSubsystem* SaveSubsystem  = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	Subsystem->CheckpointTriggered(thisCheckpointNumber);
 	SaveSubsystem->SaveGame();
 }
+
+
+
+
+
 
 

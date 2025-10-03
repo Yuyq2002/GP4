@@ -139,7 +139,7 @@ void UAbilityComponent::SetStar_Implementation(EActionType ActionType, EElement 
 		}
 	}
 
-	//UpdateUltimate();
+	UpdateUltimate();
 
 	TArray<FStarStats> NewList = { PrimaryStar ? *PrimaryStar : FStarStats(), SecondaryStar ? *SecondaryStar : FStarStats(), DashStar ? *DashStar : FStarStats() };
 	SyncStarStats(NewList);
@@ -182,8 +182,7 @@ EElement UAbilityComponent::FindElementFromActionType(EActionType InActionType)
 
 void UAbilityComponent::RotateElement_Implementation()
 {
-	RotateKeyDown = false;
-	if (Timer <= 0 || Stars.Num() <= 0) return;
+	if (Stars.Num() <= 0) return;
 
 	FStarStats* Temp = DashStar;
 
@@ -191,15 +190,9 @@ void UAbilityComponent::RotateElement_Implementation()
 	SecondaryStar = PrimaryStar;
 	PrimaryStar = Temp;
 
-	//UpdateUltimate();
+	UpdateUltimate();
 
 	SyncRotation();
-}
-
-void UAbilityComponent::StartRechargeTimer_Implementation()
-{
-	Timer = RotateThreshold;
-	RotateKeyDown = true;
 }
 
 void UAbilityComponent::SyncRotation_Implementation()
@@ -213,7 +206,8 @@ void UAbilityComponent::SyncRotation_Implementation()
 		PrimaryStar = Temp;
 	}
 
-	OnStarRotatedDelegate.Broadcast(PrimaryStar ? PrimaryStar->ElementType : EElement::None);
+	OnStarRotatedDelegate.Broadcast(PrimaryStar ? PrimaryStar->ElementType : EElement::None, SecondaryStar ? SecondaryStar->ElementType : EElement::None);
+
 }
 
 void UAbilityComponent::SyncStarStats_Implementation(const TArray<FStarStats>& NewList)
@@ -230,15 +224,9 @@ void UAbilityComponent::SyncStarStats_Implementation(const TArray<FStarStats>& N
 	OnStarChangedDelegate.Broadcast(NewList);
 }
 
-void UAbilityComponent::SyncUltimate_Implementation(EElement Primary, EElement Secondary)
-{
-	OnUltimateChangedDelegate.Broadcast(Primary, Secondary);
-}
-
 void UAbilityComponent::PrimaryAction_Implementation()
 {
-
-	if (!PrimaryStar || !(PrimaryStar->PrimaryAbility))
+	if (!PrimaryStar || !(PrimaryStar->PrimaryAbility) || PrimaryStar->bRegenMana)
 	{
 		return;
 	}
@@ -260,7 +248,7 @@ void UAbilityComponent::PrimaryAction_Implementation()
 
 void UAbilityComponent::SecondaryAction_Implementation()
 {
-	if (!SecondaryStar || !(SecondaryStar->SecondaryAbility))
+	if (!SecondaryStar || !(SecondaryStar->SecondaryAbility) || SecondaryStar->bRegenMana)
 	{
 		return;
 	}
@@ -282,7 +270,7 @@ void UAbilityComponent::SecondaryAction_Implementation()
 
 void UAbilityComponent::DashAction_Implementation()
 {
-	if (!DashStar || !(DashStar->DashAbility))
+	if (!DashStar || !(DashStar->DashAbility) || DashStar->bRegenMana)
 	{
 		return;
 	}
@@ -293,9 +281,9 @@ void UAbilityComponent::DashAction_Implementation()
 		AAbilityProjectileBase* NewProjectile = GetWorld()->SpawnActor<AAbilityProjectileBase>(DashStar->DashAbility->Projectile, Parent->GetActorLocation(), Parent->GetActorForwardVector().Rotation());
 		NewProjectile->SetEffects(DashStar->DashAbility->Effects);
 		NewProjectile->SetupProjectile(Parent, ModifierCollection, DashStar->DashAbility->ProjectileData);
-		DashStar->Mana -= DashStar->DashAbility->ManaCost;
-		DashStar->Mana = FMath::Max(0, DashStar->Mana);
+		DashStar->Mana = 0;
 		DashCooldown = DashStar->DashAbility->Cooldown;
+		DashStar->bRegenMana = true;
 
 		TArray<FStarStats> NewList = { PrimaryStar ? *PrimaryStar : FStarStats(), SecondaryStar ? *SecondaryStar : FStarStats(), DashStar ? *DashStar : FStarStats() };
 		SyncStarStats(NewList);
@@ -324,18 +312,32 @@ void UAbilityComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	SecondaryCooldown -= DeltaTime;
 	DashCooldown -= DeltaTime;
 
-	if (RotateKeyDown)
-	{
-		if (Timer > 0)
-			Timer -= DeltaTime;
-		else
-		{
-			for(auto& Star : Stars)
-				Star.Mana = FMath::Min(Star.Mana + (DeltaTime * RechargeRate), Star.MaxMana);
+	bool Regening = false;
 
-			TArray<FStarStats> NewList = { PrimaryStar ? *PrimaryStar : FStarStats(), SecondaryStar ? *SecondaryStar : FStarStats(), DashStar ? *DashStar : FStarStats() };
-			SyncStarStats(NewList);
+	for (auto& Star : Stars)
+	{
+		if (Star.bRegenMana)
+		{
+			Star.Mana = Star.Mana + (DeltaTime * RechargeRate);
+			Regening = true;
+
+			if (Star.Mana >= Star.MaxMana)
+			{
+				Star.Mana = Star.MaxMana;
+				Star.bRegenMana = false;
+			}
 		}
 	}
 
+	if (Regening)
+	{
+		TArray<FStarStats> NewList = { PrimaryStar ? *PrimaryStar : FStarStats(), SecondaryStar ? *SecondaryStar : FStarStats(), DashStar ? *DashStar : FStarStats() };
+		SyncStarStats(NewList);
+	}
+
+}
+
+void UAbilityComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	DOREPLIFETIME(UAbilityComponent, UnlockedElements);
 }

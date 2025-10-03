@@ -2,13 +2,29 @@
 
 
 #include "Main/Core/Framework/PlayerController/InterfacePlayerController.h"
+
+#include "GameProject4.h"
 #include "Main/Core/Data/Interface/ControllableInterface.h"
+#include "Main/SaveSystem/SaveGameSubSystem.h"
 #include "Net/UnrealNetwork.h" 
 
 void AInterfacePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (SaveId.IsEmpty())
+	{
+		const bool IsServerCharacterOnServer = HasAuthority() && IsLocalController();
+		const bool IsClientCharacterOnServer = HasAuthority() && !IsLocalController();
+		
+		const bool IsClientCharacterOnClient = !HasAuthority() && IsLocalController();
+		const bool IsServerCharacterOnClient = !HasAuthority() && !IsLocalController();
+		
+		SaveId = (IsServerCharacterOnServer || IsServerCharacterOnClient ? "Server" : "Client");
+	}
+
+	
+	
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(PlayerMappingContext, 0);
@@ -148,4 +164,43 @@ void AInterfacePlayerController::OnUseAura()
 		return;
 
 	IControllableInterface::Execute_UseAuraAction(GetPawn());
+}
+
+void AInterfacePlayerController::ServerRequestSaveLoad_Implementation(bool bSave, bool bLoad, bool bReset)
+{
+	// Server executes save/load
+	//ExecuteSaveLoad(bSave, bLoad, bReset);
+}
+
+void AInterfacePlayerController::ExecuteSaveLoad(int savepoint)
+{
+
+	checkPoint = savepoint;
+
+	USaveGameSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+	//SaveSubsystem->SaveGame(savepoint);
+	
+	/*
+	if (bSave)
+	{
+		USaveGameSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+		SaveSubsystem->SaveGame();
+		UE_LOG(LogTemp, Warning, TEXT("Server executed SaveGame"));
+	}
+
+	if (bLoad)
+	{
+		USaveGameSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+		SaveSubsystem->LoadGame();   
+		UE_LOG(LogTemp, Warning, TEXT("Server executed LoadGame + multicast"));
+	}
+
+	if (bReset)
+	{
+		
+		USaveGameSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<USaveGameSubsystem>();
+		SaveSubsystem->ResetData();
+		UE_LOG(LogTemp, Warning, TEXT("Server executed ResetData"));
+	}
+	*/
 }

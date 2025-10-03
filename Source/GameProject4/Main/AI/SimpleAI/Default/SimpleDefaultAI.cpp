@@ -3,6 +3,8 @@
 
 #include "SimpleDefaultAI.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "Main/AI/Subsystem/EnemyLookup.h"
 #include "Main/AI/Subsystem/PatrollpointsLookup.h"
 #include "Net/UnrealNetwork.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -19,7 +21,7 @@ void ASimpleDefaultAI::BeginPlay()
 		AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASimpleDefaultAI::HandleTargetPerceptionUpdated);
 	}
 
-	void AssignPatrolPoint();
+	GetWorld()->GetSubsystem<UEnemyLookup>()->AddAIToTile(GetActorLocation(), this);
 }
 
 void ASimpleDefaultAI::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -116,19 +118,37 @@ void ASimpleDefaultAI::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus 
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		worldState.PlayerInLineOfSight = true;
 		worldState.CurrentBehaviour = EAIState::Hunting;
-		worldState.PlayersInWorld.AddUnique(Cast<ACasterCharacter>(Actor));
 
-		targetsInLineOfSight.AddUnique(Actor);
-	}
-	else
-	{
-		targetsInLineOfSight.Remove(Actor);
-	}
+		auto enemiesInRadius = GetWorld()->GetSubsystem<UEnemyLookup>()->FindAllContentInRadius(GetActorLocation(), 3);
 
-	if (targetsInLineOfSight.IsEmpty())
-		worldState.PlayerInLineOfSight = false;
+		for(auto enemy : enemiesInRadius)
+		{
+			if (!enemy)
+				continue;
+
+			enemy->SetHunting(true);
+
+			
+			FStateTreeEvent AttackEvent;
+			AttackEvent.Tag = FGameplayTag::RequestGameplayTag(FName("ActiveStatus.true"));
+
+			if (IsValid(enemy->CurrentController))
+				enemy->CurrentController->StateTreeAIComponent->SendStateTreeEvent(AttackEvent);
+		}
+		
+		int32 NumPlayers = UGameplayStatics::GetNumPlayerControllers(GetWorld());
+
+		if (NumPlayers > worldState.PlayersInWorld.Num())
+		{
+			for (int i = 0; i <= (NumPlayers - 1); i++)
+			{
+				if (UGameplayStatics::GetPlayerController(GetWorld(), i)->GetPawn() != nullptr)	
+					worldState.PlayersInWorld.AddUnique(UGameplayStatics::GetPlayerController(GetWorld(), i)->GetPawn());
+			}
+		}
+	}
+	AIPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
 
 	HandleTargetPerceptionUpdated_BP(Actor,Stimulus);
 }
@@ -136,7 +156,58 @@ void ASimpleDefaultAI::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus 
 void ASimpleDefaultAI::SetHunting(bool hunting)
 {
 	if (hunting)
+	{
 		worldState.CurrentBehaviour = EAIState::Hunting;
+
+		if (worldState.ClosestPlayer == nullptr)
+		{
+			if (!GetWorld())
+			{
+				return;
+			}
+			UWorld* World = GetWorld();
+			if (!World)
+				return;
+			
+			APlayerController* C = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+			if (!C)
+				return;
+			
+			worldState.ClosestPlayer = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn();
+		}
+	}
 	else
 		worldState.CurrentBehaviour = EAIState::Idle;
+}
+
+void ASimpleDefaultAI::StartAllActions()
+{
+	CurrentController->StateTreeAIComponent->StartLogic();
+}
+
+void ASimpleDefaultAI::StopAllActions()
+{
+	if (HasAuthority() && IsValid(CurrentController))
+		CurrentController->StateTreeAIComponent->StopLogic("Paused_actions");
+}
+
+void ASimpleDefaultAI::OnMove()
+{
+	if (HasAuthority()) //Runs on Server
+		Server_OnMove();
+}
+
+void ASimpleDefaultAI::Server_OnMove_Implementation()
+{
+	worldState.CurrentTile = GetWorld()->GetSubsystem<UEnemyLookup>()->WorldToTile(GetActorLocation());
+	if (worldState.PreviousTile == worldState.CurrentTile)
+		return;
+	auto system = GetWorld()->GetSubsystem<UEnemyLookup>();
+
+	system->RemoveAIFromTile(system->TileToWorld(worldState.PreviousTile), this);
+
+	worldState.PreviousTile = worldState.CurrentTile;
+	system->AddAIToTile(GetActorLocation(), this);	
+
+
 }

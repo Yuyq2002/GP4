@@ -3,7 +3,10 @@
 
 #include "ToggleSkillTreeUI.h"
 
+#if WITH_EDITOR
 #include "EditorCategoryUtils.h"
+#endif
+
 #include "EnhancedInputComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/SlateWrapperTypes.h"

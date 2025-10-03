@@ -4,6 +4,7 @@
 #include "Main/Ability/Object/AbilityProjectileBase.h"
 #include "Main/Ability/Object/AbilityData.h"
 #include "Components/SphereComponent.h"
+#include "Debug.h"
 
 // Sets default values
 AAbilityProjectileBase::AAbilityProjectileBase()
@@ -23,6 +24,8 @@ AAbilityProjectileBase::AAbilityProjectileBase()
 
 void AAbilityProjectileBase::SetEffects(const TArray<FEffectData>& RemainingEffects)
 {
+	Debug::Log("SetEffects: " + GetFName().ToString(), true);
+
 	Effects = RemainingEffects;
 	if (Effects.Num() > 0)
 	{
@@ -37,6 +40,8 @@ void AAbilityProjectileBase::SetEffects(const TArray<FEffectData>& RemainingEffe
 
 void AAbilityProjectileBase::SetupProjectile_Implementation(AActor* Initiator, UModifiedPlayerStats* InModifierCollection, FProjectileData ProjectileData)
 {
+	Debug::Log("SetupProjectile: " + GetFName().ToString(), true);
+
 	LifeTime = UDataFetcher::GetFloatDataByName("LifeTime", ProjectileData.Data.FloatData);
 	Damage = UDataFetcher::GetFloatDataByName("Damage", ProjectileData.Data.FloatData);
 	ElementStrength = UDataFetcher::GetFloatDataByName("ElementStrength", ProjectileData.Data.FloatData);
@@ -68,8 +73,10 @@ void AAbilityProjectileBase::Tick(float DeltaTime)
 	LifeTime -= DeltaTime;
 	if (LifeTime <= 0 || bIsFinished)
 	{
-		if (ActiveEffect)
+		if (ActiveEffect && HasAuthority())
 		{
+			Debug::Log(GetFName().ToString() + " triggers " + ActiveEffect->GetFName().ToString(), true);
+
 			ActiveEffect->SetEffects(Effects);
 			ActiveEffect->ApplyEffect(this);
 		}

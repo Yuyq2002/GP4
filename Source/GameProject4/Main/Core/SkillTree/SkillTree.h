@@ -24,19 +24,12 @@ class GAMEPROJECT4_API USkillTree : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
-	// UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "UI")
-	// UBorder* Border;
+
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* SkillPointsText;
 	
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "UI")
 	UCanvasPanel* CanvasPanel;
-
-	// UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "UI")
-	// UImage* BackgroundColor;
-	//
-	// UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "UI")
-	// UTextBlock* MainText;
 //for making the skill tree more easily customizable
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	TArray<USkill*> SkillNodes;
@@ -51,18 +44,7 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, Category="Skills")
 	void SetPlayerStats(UModifiedPlayerStats* InStats) { PlayerStats = InStats; }
-	// UFUNCTION(BlueprintCallable, Category = "Skill")
-	// void AddSkillNode(FVector2D Position, int32 Cost, ESkillType Type);
-	//
-	// UFUNCTION()
-	// void OnSkillClicked(USkill* ClickedSkill);
-	//
-	// UFUNCTION()
-	// void DrawConnection(USkill* From, USkill* To);
-	//
-	// UFUNCTION()
-	// FVector2D GetWidgetCenter(UUserWidget* Widget);
-	//
+
 private:
 	UPROPERTY()
 	UExperienceContainer* ExperienceComponent;

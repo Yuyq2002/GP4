@@ -4,6 +4,7 @@
 #include "CasterCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "Main/Core/SkillTree/ToggleSkillTreeUI.h"
+#include "Main/SaveSystem/SaveGameSubSystem.h"
 
 
 // Sets default values
@@ -22,6 +23,7 @@ ACasterCharacter::ACasterCharacter()
 void ACasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 
 // Called every frame
@@ -44,8 +46,12 @@ void ACasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
+
+
+
 FGenericTeamId ACasterCharacter::GetGenericTeamId() const
 {
 	return TeamId;
 }
+
 

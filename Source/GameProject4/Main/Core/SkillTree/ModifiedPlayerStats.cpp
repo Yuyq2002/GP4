@@ -8,16 +8,16 @@ UModifiedPlayerStats::UModifiedPlayerStats()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	BaseStats.Damage = 10.0f;
-	BaseStats.WalkSpeed = 600.0f;
-	BaseStats.ProjectileSpeed = 1000.0f;
+	// BaseStats.Add("Damage") = 10.0f;
+	// BaseStats.Add("WalkSpeed") = 600.0f;
+	// BaseStats.Add("ProjectileSpeed") = 1000.0f;
 
 	CurrentStats = BaseStats;
 
 	// ...
 }
-
-
+//
+//
 void UModifiedPlayerStats::BeginPlay()
 {
 	Super::BeginPlay();
@@ -26,71 +26,54 @@ void UModifiedPlayerStats::BeginPlay()
 	
 }
 
+TArray<FName> UModifiedPlayerStats::GetAvailableStatKeys() const
+{
+    return AvailableStatKeys;
+}
+
 void UModifiedPlayerStats::ResetStatsToBase()
 {
 	CurrentStats = BaseStats;
-	OnStatChanged.Broadcast("Damage", CurrentStats.Damage);
-	OnStatChanged.Broadcast("WalkSpeed", CurrentStats.WalkSpeed);
-	OnStatChanged.Broadcast("ProjectileSpeed", CurrentStats.ProjectileSpeed);
+	for (const TPair<FName, float>& Pair : CurrentStats)
+	{
+		OnStatChanged.Broadcast(Pair.Key, Pair.Value);
+	}
 }
 
-FPlayerStatsStruct UModifiedPlayerStats::GetCurrentStats() const
+TMap<FName, float> UModifiedPlayerStats::GetCurrentStats() const
 {
 	return CurrentStats;
 }
 
-void UModifiedPlayerStats::SetCurrentStats(const FPlayerStatsStruct& NewStats)
+void UModifiedPlayerStats::SetCurrentStats(const TMap<FName, float>& NewStats)
 {
-	if (CurrentStats.Damage != NewStats.Damage)
-		OnStatChanged.Broadcast("Damage", NewStats.Damage);
-	if (CurrentStats.WalkSpeed != NewStats.WalkSpeed)
-		OnStatChanged.Broadcast("WalkSpeed", NewStats.WalkSpeed);
-	if (CurrentStats.ProjectileSpeed != NewStats.ProjectileSpeed)
-		OnStatChanged.Broadcast("ProjectileSpeed", NewStats.ProjectileSpeed);
-
+	for (const TPair<FName, float>& Pair : NewStats)
+	{
+		const float* ExistingValue = CurrentStats.Find(Pair.Key);
+		if (!ExistingValue || !FMath::IsNearlyEqual(*ExistingValue, Pair.Value))
+		{
+			OnStatChanged.Broadcast(Pair.Key, Pair.Value);
+		}
+	}
 	CurrentStats = NewStats;
 }
 
-// float UModifiedPlayerStats::GetDamage() const
-// {
-// 	return Damage;
-// }
-//
-// void UModifiedPlayerStats::SetDamage(float NewDamage)
-// {
-// 	if (Damage != NewDamage)
-// 	{
-// 		Damage = NewDamage;
-// 		OnStatChanged.Broadcast("Damage", Damage);
-// 	}
-// }
-//
-// float UModifiedPlayerStats::GetWalkSpeed() const
-// {
-// 	return WalkSpeed;
-// }
-//
-// void UModifiedPlayerStats::SetWalkSpeed(float NewWalkSpeed)
-// {
-// 	if (WalkSpeed != NewWalkSpeed)
-// 	{
-// 		WalkSpeed = NewWalkSpeed;
-// 		OnStatChanged.Broadcast("WalkSpeed", WalkSpeed);
-// 	}
-// }
-//
-// float UModifiedPlayerStats::GetProjectileSpeed() const
-// {
-// 	return ProjectileSpeed;
-// }
-//
-// void UModifiedPlayerStats::SetProjectileSpeed(float NewProjectileSpeed)
-// {
-// 	if (ProjectileSpeed != NewProjectileSpeed)
-// 	{
-// 		ProjectileSpeed = NewProjectileSpeed;
-// 		OnStatChanged.Broadcast("ProjectileSpeed", ProjectileSpeed);
-// 	}
-// }
+float UModifiedPlayerStats::GetStat(FName StatName) const
+{
+	const float* FoundValue = CurrentStats.Find(StatName);
+	return FoundValue ? *FoundValue : 0.0f;
+}
+
+void UModifiedPlayerStats::SetStat(FName StatName, float NewValue)
+{
+	float* ExistingValue = CurrentStats.Find(StatName);
+	if (!ExistingValue || !FMath::IsNearlyEqual(*ExistingValue, NewValue))
+	{
+		CurrentStats.Add(StatName, NewValue);
+		OnStatChanged.Broadcast(StatName, NewValue);
+	}
+}
+
+
 
 

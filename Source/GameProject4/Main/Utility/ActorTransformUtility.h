@@ -26,4 +26,13 @@ class GAMEPROJECT4_API UActorTransformUtility : public UBlueprintFunctionLibrary
 public:
 	UFUNCTION(BlueprintCallable)
 	static void AlignActor(AActor* Actor, AActor* OtherActor, EAlignment ActorAlignment = EAlignment::Origin, EAlignment OtherActorAlignment = EAlignment::Origin);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static FVector GetAlignedLocation(AActor* Actor, AActor* OtherActor, EAlignment ActorAlignment = EAlignment::Origin, EAlignment OtherActorAlignment = EAlignment::Origin);
+
+	UFUNCTION(BlueprintCallable)
+	static void AlignActorToLocation(AActor* Actor, FVector AlignToLocation, EAlignment ActorAlignment = EAlignment::Origin);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static FVector GetAlignmentToLocation(AActor* Actor, FVector AlignToLocation, EAlignment ActorAlignment = EAlignment::Origin);
 };

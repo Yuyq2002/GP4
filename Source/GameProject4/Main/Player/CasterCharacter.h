@@ -25,16 +25,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifiedPlayerStats")
 	UModifiedPlayerStats* ModifiedPlayerStats;
 protected:
-	// Called when the game starts or when spawned
-
+	// Called when the game starts or when spawne
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 
-
+	
 	virtual FGenericTeamId GetGenericTeamId() const override;
 
 private:

@@ -23,7 +23,7 @@ UInteractionComponent::UInteractionComponent()
 
 	// Make it invisible in game/editor
 	Sphere->SetHiddenInGame(true);
-	Sphere->SetVisibility(false);
+	Sphere->SetVisibility(true);
 	Sphere->bHiddenInGame = true;
 
 	// Don’t auto register until we can attach to owner’s root in OnRegister
@@ -88,6 +88,11 @@ void UInteractionComponent::OnSphereEnd(UPrimitiveComponent* OverlappedComp, AAc
 		Candidates.Remove(OtherActor);
 	}
 	RefreshFocusedActor();
+}
+
+void UInteractionComponent::ServerExecuteInteract_Implementation(AActor* InFocusedActor)
+{
+	IInteractionInterface::Execute_InteractWithMe(InFocusedActor, GetOwner());
 }
 
 void UInteractionComponent::RefreshFocusedActor()
@@ -180,9 +185,9 @@ void UInteractionComponent::TryInteract()
 	if (!FocusedActor) return;
 
 	// Client asks server to do the authoritative call
-	if (GetOwner() && GetOwner()->HasAuthority())
+	if (GetOwner())
 	{
-		IInteractionInterface::Execute_InteractWithMe(FocusedActor, GetOwner());
+		ServerExecuteInteract(FocusedActor);
 		RefreshFocusedActor();
 	}
 }

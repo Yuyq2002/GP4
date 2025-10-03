@@ -39,15 +39,7 @@ void UExperienceGranter::HandleDestroyedActor(AActor* DestroyedActor)
 
 void UExperienceGranter::GrantExperienceTo(AActor* TargetActor)
 {
-	// if (UExperienceContainer* ExpComp = TargetActor->FindComponentByClass<UExperienceContainer>())
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("Giving %s %d XP"), *TargetActor->GetName(), RandomExperienceValue);
-	// 	if (!ExpComp->OnLevelUp.IsAlreadyBound(this, &UExperienceGranter::HandleTargetLeveledUp))
-	// 	{
-	// 		ExpComp->OnLevelUp.AddDynamic(this, &UExperienceGranter::HandleTargetLeveledUp);
-	// 	}
-	// 	ExpComp->AddExperience(RandomExperienceValue);
-	// }
+
 	if (UExperienceContainer* ExpComp = TargetActor->FindComponentByClass<UExperienceContainer>())
 	{
 		const int32 RandomXP = FMath::RandRange(MinExperienceValue, MaxExperienceValue);
@@ -65,13 +57,6 @@ void UExperienceGranter::GrantExperienceTo(AActor* TargetActor)
 
 void UExperienceGranter::HandleTargetLeveledUp(AActor* LeveledActor, int32 NewLevel)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("Target %s leveled up to level %d"), *GetOwner()->GetName(), NewLevel);
-	// OnTargetLevelUp.Broadcast(GetOwner()); 
-	// UExperienceContainer* ExpComp = GetOwner()->FindComponentByClass<UExperienceContainer>();
-	// if (ExpComp)
-	// {
-	// 	ExpComp->OnLevelUp.RemoveDynamic(this, &UExperienceGranter::HandleTargetLeveledUp);
-	// }
 	if (!LeveledActor) return;
 
 	UE_LOG(LogTemp, Warning, TEXT("Target %s leveled up to level %d"), *LeveledActor->GetName(), NewLevel);

@@ -15,11 +15,14 @@ class GAMEPROJECT4_API USaveGameSubsystem : public UGameInstanceSubsystem
 
 public:
 	UPROPERTY()
-	FString SaveSlotName;
+	FString SaveSlotName = TEXT("SaveGame01");
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UMySaveGame> CurrentSaveGame;
-	
+
+	UPROPERTY(Transient)
+	bool bIsLaoding = false;
+
 	
 	UFUNCTION(BlueprintCallable)
 	void SaveGame();
@@ -31,4 +34,5 @@ public:
 	void ResetData();
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
 };

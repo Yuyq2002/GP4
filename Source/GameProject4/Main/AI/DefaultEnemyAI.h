@@ -7,6 +7,7 @@
 #include "Components/AIAttackComponent.h"
 #include "Components/PatrolPoint.h"
 #include "GameFramework/Character.h"
+#include "Main/Ability/Enums/StunnedType.h"
 #include "DefaultEnemyAI.generated.h"
 
 UENUM(BlueprintType)
@@ -31,14 +32,6 @@ enum class AiIdleBehaviour : uint8
 {
 	Idle			UMETA(DisplayName = "Idle"),
 	Patrol			UMETA(DisplayName = "Patrol")
-};
-
-UENUM(BlueprintType)
-enum class StunnedType : uint8
-{
-	Frozen		UMETA(DisplayName = "Frozen"),
-	Stunned		UMETA(DisplayName = "Stunned"),
-	Shocked		UMETA(DisplayName = "Shocked")
 };
 
 UENUM(BlueprintType)

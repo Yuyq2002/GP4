@@ -24,6 +24,7 @@ class ASSETPINNER_API UPinnedAssetSlotBase : public UEditorUtilityWidget
 public:
 	void SetAssetData(const FString& Path, const FAssetData& Asset);
 	void SetParentRef(UPinnedSectionBase* ParentReference);
+	void RecheckInput(FKey Input);
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true, BindWidget))

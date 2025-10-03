@@ -16,5 +16,9 @@ enum class EElement : uint8
 	Ice,
 	Wind,
 	Lightning,
-	Water
+	Water,
+	Light,
+	Oil,
+
 };
+ENUM_CLASS_FLAGS(EElement);

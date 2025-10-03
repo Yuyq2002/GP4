@@ -72,7 +72,7 @@ bool ADefaultEnemyAI::DoAttackFromArrayRef(Attacktype arrayType, int chosenAttac
 
 void ADefaultEnemyAI::Server_OnMove_Implementation()
 {
-	CurrentTile = GetWorld()->GetSubsystem<UEnemyLookup>()->WorldToTile(GetActorLocation());
+	/*CurrentTile = GetWorld()->GetSubsystem<UEnemyLookup>()->WorldToTile(GetActorLocation());
 	if (PreviousTile == CurrentTile)
 		return;
 	auto system = GetWorld()->GetSubsystem<UEnemyLookup>();
@@ -81,7 +81,7 @@ void ADefaultEnemyAI::Server_OnMove_Implementation()
 	
 
 	system->RemoveAIFromTile(system->TileToWorld(PreviousTile), this);
-	system->AddAIToTile(GetActorLocation(), this);	
+	system->AddAIToTile(GetActorLocation(), this);*/
 }
 
 FGenericTeamId ADefaultEnemyAI::GetGenericTeamId() const
@@ -94,7 +94,7 @@ void ADefaultEnemyAI::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetSubsystem<UEnemyLookup>()->AddAIToTile(GetActorLocation(), this);
+	//GetWorld()->GetSubsystem<UEnemyLookup>()->AddAIToTile(GetActorLocation(), this);
 
 	CurrentTile = GetWorld()->GetSubsystem<UEnemyLookup>()->WorldToTile(GetActorLocation());
 }

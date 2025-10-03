@@ -22,7 +22,8 @@ public class GameProject4 : ModuleRules
 			"UMG",
 			"Slate",
 			"StateTreeModule",
-			"GameplayTags"
+			"GameplayTags",
+			"SimplifiedDebugMessage"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

@@ -16,6 +16,7 @@ class UCanvasPanel;
 class UImage;
 class UTextBlock;
 class USkill;
+class UScaleBox;
 class UModifiedPlayerStats;
 UCLASS()
 class GAMEPROJECT4_API USkillTree : public UUserWidget
@@ -28,8 +29,18 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* SkillPointsText;
 	
+	UPROPERTY(EditAnywhere)
+	UButton* SkillDescription;
+	
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "UI")
 	UCanvasPanel* CanvasPanel;
+	//
+	// UPROPERTY(meta=(BindWidget))
+	// UBorder* TooltipBox;
+	//
+	// UPROPERTY(meta=(BindWidget))
+	// UTextBlock* TooltipTextDiscription;
+	
 //for making the skill tree more easily customizable
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	TArray<USkill*> SkillNodes;
@@ -39,12 +50,18 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skills")
 	TSubclassOf<class USkill> SkillWidgetClass;
-	
+	bool bIsSkillTreeToggled = true;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 public:
 	UFUNCTION(BlueprintCallable, Category="Skills")
 	void SetPlayerStats(UModifiedPlayerStats* InStats) { PlayerStats = InStats; }
-
+	UFUNCTION(BlueprintCallable, Category="UI")
+	void CloseSkillTree();
+	// UFUNCTION()
+	// void ShowSkillTooltip(const FText& SkillName, const FText& Description, const FVector2D& Position);
+	//
+	// UFUNCTION()
+	// void HideSkillTooltip();
 private:
 	UPROPERTY()
 	UExperienceContainer* ExperienceComponent;
@@ -53,5 +70,5 @@ private:
 	void HandleLevelUp(AActor* OwnerActor, int32 NewSkillPoints);
 
 	void RefreshSkillPoints();
-	
+
 };

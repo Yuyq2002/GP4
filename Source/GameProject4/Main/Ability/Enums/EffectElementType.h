@@ -19,6 +19,6 @@ enum class EElement : uint8
 	Water,
 	Light,
 	Oil,
-
+	Dark,
 };
 ENUM_CLASS_FLAGS(EElement);

@@ -21,9 +21,22 @@ void UPinnedSectionBase::NativeConstruct()
 
 	PinnedAssetSubsystem->OnListChangedDelegate.BindDynamic(this, &UPinnedSectionBase::OnListChangedCallback);
 
+	ConfigPath = FPaths::GameUserDeveloperDir() + "PinnedAssetConfig.txt";
+	if (FPaths::ValidatePath(ConfigPath))
+	{
+		FString Data;
+		FFileHelper::LoadFileToString(Data, *ConfigPath);
+		Size = FCString::Atof(*Data);
+	}
+
 	Refresh(PinnedAssetSubsystem->GetAssetPathList(), PinnedAssetSubsystem->GetStatusList());
 
 	ClearButton->OnClicked.AddDynamic(this, &UPinnedSectionBase::OnClearButtonClicked);
+}
+
+void UPinnedSectionBase::NativeDestruct()
+{
+	FFileHelper::SaveStringToFile(FString::SanitizeFloat(Size), *ConfigPath);
 }
 
 EditState UPinnedSectionBase::CheckInEditMode()
@@ -52,6 +65,7 @@ void UPinnedSectionBase::Refresh(const TArray<FString>& List, const TArray<bool>
 
 	PinnedWrapBox->ClearChildren();
 	RecentWrapBox->ClearChildren();
+	SizeBoxes.Empty();
 
 	for (int i = 0; i < List.Num(); i++)
 	{
@@ -63,6 +77,9 @@ void UPinnedSectionBase::Refresh(const TArray<FString>& List, const TArray<bool>
 		UPinnedAssetSlotBase* NewSlot = CreateWidget<UPinnedAssetSlotBase>(this, AssetSlotWidget);
 		NewSlot->SetAssetData(List[i], Assets[0]);
 		NewSlot->SetParentRef(this);
+		NewSlot->SizeBox->SetHeightOverride(Size * Ratio);
+		NewSlot->SizeBox->SetWidthOverride(Size);
+		SizeBoxes.Add(NewSlot->SizeBox);
 
 		if (StatusList[i])
 			PinnedWrapBox->AddChildToWrapBox(NewSlot);
@@ -100,7 +117,32 @@ FReply UPinnedSectionBase::NativeOnKeyUp(const FGeometry& InGeometry, const FKey
 	return FReply::Handled();
 }
 
+FReply UPinnedSectionBase::NativeOnMouseWheel(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	if (EditMode == EditState::InEditMode)
+	{
+		Size += InMouseEvent.GetWheelDelta() * 10;
+		Size = FMath::Max(Size, MinSize);
+
+		for (auto SizeBox : SizeBoxes)
+		{
+			SizeBox->SetHeightOverride(Size * Ratio);
+			SizeBox->SetWidthOverride(Size);
+		}
+		return FReply::Handled();
+	}
+
+	return FReply::Handled();
+}
+
+FReply UPinnedSectionBase::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
+{
+	EditMode = EditState::NotInEditMode;
+	return FReply::Handled();
+}
+
 void UPinnedSectionBase::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
 {
 	EditMode = EditState::Unfocused;
+	RecallEditAction = nullptr;
 }

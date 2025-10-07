@@ -33,6 +33,9 @@ public:
 	USkillData* SkillData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill")
 	FGameplayTag SkillTag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill")
+	FName TargetStatName;
+	
 	UFUNCTION(BlueprintCallable, Category = "Skills")
 	bool IsPurchasable();
 	UFUNCTION(BlueprintCallable, Category = "Skills")
@@ -51,7 +54,11 @@ public:
 	
 	bool bIsSkillUnlocked = false;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	FText SkillName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	FText SkillDescription;
 	
 protected:
 	//Functions for deducting skill points for purchasing skills
@@ -64,5 +71,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "UI")
 	UButton* Button;
 
-
+	// virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	// virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 };

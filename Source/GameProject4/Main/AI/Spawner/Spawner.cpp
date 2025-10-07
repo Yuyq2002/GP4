@@ -3,12 +3,20 @@
 
 #include "Spawner.h"
 
+#include "Debug.h"
+#include "Net/UnrealNetwork.h"
+
 
 // Sets default values
-ASpawner::ASpawner()
+ASpawner::ASpawner(): SpawnLogic(ESpawnLogic::Single), AmountOfUnitsToSpawn(0), InitialSpawnDelay(0), bShowSpawnInterval(false),
+                      SpawnInterval(0),
+                      ShouldSpawnHunting(false),
+                      spawnOnBegin(false)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned
@@ -23,54 +31,32 @@ void ASpawner::BeginPlay()
 	
 }
 
-void ASpawner::StartSpawning()
+void ASpawner::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	if (!UnitToSpawn) return;
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// Start a timer with an initial delay
-	GetWorldTimerManager().SetTimer(
-		SpawnTimer,
-		this,
-		&ASpawner::SpawnUnits,
-		SpawnInterval,           // Interval between spawns
-		SpawnInterval > 0.0f,    // Should repeat?
-		InitialSpawnDelay               // Initial delay before first spawn
-	);
+	DOREPLIFETIME(ASpawner, AmountOfUnitsToSpawn);
 }
 
-void ASpawner::StopSpawning()
+void ASpawner::StopSpawning_Implementation()
 {
+	if (!HasAuthority())
+		return;
 	GetWorldTimerManager().ClearTimer(SpawnTimer);
 }
 
 void ASpawner::SpawnUnits()
 {
+	if (!HasAuthority())
+		return;
 	if (UnitToSpawn)
 	{
 		FActorSpawnParameters SpawnParams;
 		auto unit = GetWorld()->SpawnActor<ASimpleDefaultAI>(UnitToSpawn, GetActorLocation(), GetActorRotation(), SpawnParams);
-
+				
 		if (ShouldSpawnHunting)
 		{
-			if (ShouldHuntAfterTime)
-			{
-				GetWorldTimerManager().SetTimer(
-				HuntTimer,
-				[unit]()
-					{
-						if (unit && !unit->IsPendingKillPending())
-							{
-								unit->SetHunting(true);
-							}
-					},
-					ActivateUnitTime,
-					false
-				);
-			}
-			else
-			{
-				unit->SetHunting(true);
-			}
+			unit->SetHunting(true);
 		}
 
 		AmountOfUnitsToSpawn--;
@@ -88,7 +74,69 @@ void ASpawner::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEven
 	if (PropertyChangedEvent.Property &&
 		PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(ASpawner, AmountOfUnitsToSpawn))
 	{
-		bShowSpawnInterval = (AmountOfUnitsToSpawn > 1); // show field only if > 10
+		bShowSpawnInterval = (SpawnLogic == ESpawnLogic::Interval); // show field only if > 10
 	}
 }
 #endif
+
+
+void ASpawner::StartSpawning_Implementation()
+{
+	if (!HasAuthority())
+	{
+		Debug::Log("no authoroty");
+		return;
+	}
+	if (!UnitToSpawn)
+	{
+		return;
+	}
+	FActorSpawnParameters SpawnParams;
+
+	ASimpleDefaultAI* Unit = nullptr;
+
+	switch (SpawnLogic)
+	{
+	case ESpawnLogic::Single:
+		
+		/*Unit = GetWorld()->SpawnActor<ASimpleDefaultAI>(UnitToSpawn, GetActorLocation(), GetActorRotation(), SpawnParams);
+
+		if (Unit->CurrentController == nullptr)
+		{
+			auto* controller = GetWorld()->SpawnActor<ASimpleAiController>(IfNeededAiController, GetActorLocation(), GetActorRotation(), SpawnParams);
+			controller->Possess(Unit);
+
+			Unit->CurrentController = controller;
+		}*/
+
+		SpawnUnits();
+
+		break;
+	case ESpawnLogic::Interval:
+		GetWorldTimerManager().SetTimer(
+			SpawnTimer,
+			this,
+			&ASpawner::SpawnUnits,
+			SpawnInterval,
+			true,
+			InitialSpawnDelay
+		);
+		break;
+	case ESpawnLogic::Chunk:
+		for (int i = 0; i < AmountOfUnitsToSpawn; i++)
+		{
+			auto unit = GetWorld()->SpawnActor<ASimpleDefaultAI>(UnitToSpawn, GetActorLocation(), GetActorRotation(), SpawnParams);
+
+			if (ShouldSpawnHunting)
+			{
+				unit->SetHunting(true);
+			}
+		}
+
+		AmountOfUnitsToSpawn = 0;
+		break;
+	default: ;
+	}
+
+	
+}

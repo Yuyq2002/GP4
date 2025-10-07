@@ -3,6 +3,7 @@
 
 #include "Skill.h"
 #include "SkillData.h"
+#include "SkillTree.h"
 #include "GameProject4/Main/Core/ExperienceSystem/ExperienceContainer.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
@@ -87,7 +88,7 @@ void USkill::PurchaseSkill()
 	
 		ExpComp->SetSkillPoints(ExpComp->GetSkillPoints() - CostFromData);
 		bIsSkillUnlocked = true;
-		OnSkillClicked.Broadcast(this);
+		//OnSkillClicked.Broadcast(this);
 		UE_LOG(LogTemp, Warning, TEXT("Got mad skills! Cost: %d, Remaining Skill Points: %d"), 
 			CostFromData, ExpComp->GetSkillPoints());
 		ExpComp->AddUnlockedTag(SkillTag);
@@ -102,7 +103,7 @@ void USkill::PurchaseSkill()
 		{
 			Button->SetIsEnabled(false);
 		}
-		OnSkillClicked.Broadcast(this);
+		//OnSkillClicked.Broadcast(this);
 	}
 }
 
@@ -123,3 +124,46 @@ void USkill::OnButtonClicked()
 	PurchaseSkill();
 	OnSkillClicked.Broadcast(this); //broadcast for skill customization
 }
+
+// void USkill::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+// {
+// 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
+//
+// 	USkillTree* SkillTreeWidget = Cast<USkillTree>(GetParent());
+// 	if (!SkillTreeWidget)
+// 	{
+// 		UWidget* CurrentParent = GetParent();
+// 		while (CurrentParent && !SkillTreeWidget)
+// 		{
+// 			SkillTreeWidget = Cast<USkillTree>(CurrentParent);
+// 			CurrentParent = CurrentParent->GetParent();
+// 		}
+// 	}
+// 	
+// 	if (SkillTreeWidget)
+// 	{
+// 		FVector2D MousePosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+// 		SkillTreeWidget->ShowSkillTooltip(SkillName, SkillDescription, MousePosition);
+// 	}
+// }
+//
+// void USkill::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+// {
+// 	Super::NativeOnMouseLeave(InMouseEvent);
+// 	
+// 	USkillTree* SkillTreeWidget = Cast<USkillTree>(GetParent());
+// 	if (!SkillTreeWidget)
+// 	{
+// 		UWidget* CurrentParent = GetParent();
+// 		while (CurrentParent && !SkillTreeWidget)
+// 		{
+// 			SkillTreeWidget = Cast<USkillTree>(CurrentParent);
+// 			CurrentParent = CurrentParent->GetParent();
+// 		}
+// 	}
+// 	
+// 	if (SkillTreeWidget)
+// 	{
+// 		SkillTreeWidget->HideSkillTooltip();
+// 	}
+// }

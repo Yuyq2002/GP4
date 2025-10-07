@@ -71,4 +71,5 @@ protected:
 	float ElementStrength;
 
 	bool bIsFinished = false;
+	bool bFinishedSetup = false;
 };

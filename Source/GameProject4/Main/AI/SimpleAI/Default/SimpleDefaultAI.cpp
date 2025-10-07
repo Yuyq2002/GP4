@@ -24,6 +24,11 @@ void ASimpleDefaultAI::BeginPlay()
 	GetWorld()->GetSubsystem<UEnemyLookup>()->AddAIToTile(GetActorLocation(), this);
 }
 
+UWorld* ASimpleDefaultAI::GetCurrentWorld() const
+{
+	return GetWorld();
+}
+
 void ASimpleDefaultAI::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -76,6 +81,62 @@ FVector FCurrentPatrolPoint::GetPatrolPointInWorld() const
 	return PatrolPoint.Get()->Spline->GetWorldLocationAtSplinePoint(CurrentPatrolPointIndex);
 }
 
+void ASimpleDefaultAI::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (HasAuthority())
+	{
+		if (worldState.PlayersInWorld.Num() < 2)
+		{
+			FTimerHandle Handle;
+			GetWorldTimerManager().SetTimer(Handle, this, &ASimpleDefaultAI::AddAllPlayers, 0.5, false);
+		}
+		
+		APawn* ClosestPlayer = nullptr;
+		APawn* FurthestPlayer = nullptr;
+
+		float ClosestDistSq = FLT_MAX;
+		float FurthestDistSq = 0.f;
+
+		for (APawn* Player : worldState.PlayersInWorld)
+		{
+			if (!IsValid(Player)) continue;
+
+			const float DistSq = FVector::DistSquared(GetActorLocation(), Player->GetActorLocation());
+
+			if (DistSq < ClosestDistSq)
+			{
+				ClosestDistSq = DistSq;
+				ClosestPlayer = Player;
+			}
+
+			if (DistSq > FurthestDistSq)
+			{
+				FurthestDistSq = DistSq;
+				FurthestPlayer = Player;
+			}
+		}
+
+		if (ClosestPlayer && !FurthestPlayer)
+		{
+			FurthestPlayer = ClosestPlayer;
+		}
+
+		if (worldState.ClosestPlayer != ClosestPlayer)
+		{
+			worldState.ClosestPlayer = ClosestPlayer;
+			worldState.ClosestPlayerDistance = FMath::Sqrt(ClosestDistSq);
+		}
+
+		worldState.furthestPlayer = FurthestPlayer;
+	}
+
+	
+
+	
+}
+
 // Sets default values
 ASimpleDefaultAI::ASimpleDefaultAI() : worldState()
 {
@@ -112,6 +173,7 @@ FGenericTeamId ASimpleDefaultAI::GetGenericTeamId() const
 void ASimpleDefaultAI::HandlePerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {	
 	OnPerceptionUpdated_BP(UpdatedActors);
+	
 }
 
 void ASimpleDefaultAI::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -120,15 +182,14 @@ void ASimpleDefaultAI::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus 
 	{
 		worldState.CurrentBehaviour = EAIState::Hunting;
 
-		auto enemiesInRadius = GetWorld()->GetSubsystem<UEnemyLookup>()->FindAllContentInRadius(GetActorLocation(), 3);
+		auto enemiesInRadius = GetWorld()->GetSubsystem<UEnemyLookup>()->FindAllContentInRadius(GetActorLocation(), 1);
 
 		for(auto enemy : enemiesInRadius)
 		{
-			if (!enemy)
+			if (!IsValid(enemy))
 				continue;
 
 			enemy->SetHunting(true);
-
 			
 			FStateTreeEvent AttackEvent;
 			AttackEvent.Tag = FGameplayTag::RequestGameplayTag(FName("ActiveStatus.true"));
@@ -182,13 +243,50 @@ void ASimpleDefaultAI::SetHunting(bool hunting)
 
 void ASimpleDefaultAI::StartAllActions()
 {
-	CurrentController->StateTreeAIComponent->StartLogic();
+	if (CurrentController)
+		if (CurrentController->StateTreeAIComponent)
+			CurrentController->StateTreeAIComponent->StartLogic();
 }
 
 void ASimpleDefaultAI::StopAllActions()
 {
 	if (HasAuthority() && IsValid(CurrentController))
 		CurrentController->StateTreeAIComponent->StopLogic("Paused_actions");
+}
+
+void ASimpleDefaultAI::AddAllPlayers()
+{
+	if (worldState.PlayersInWorld.Num() >= 2)
+		return;
+	
+	int32 NumPlayers = UGameplayStatics::GetNumPlayerControllers(GetWorld());
+
+	if (NumPlayers > worldState.PlayersInWorld.Num())
+	{
+		for (int i = 0; i <= (NumPlayers - 1); i++)
+		{
+			if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), i)->GetPawn()))
+			{
+				worldState.PlayersInWorld.AddUnique(UGameplayStatics::GetPlayerController(GetWorld(), i)->GetPawn());
+			}
+			
+		}
+	}
+}
+
+TArray<APawn*> ASimpleDefaultAI::GetAllPlayersInWorld()
+{
+	TArray<APawn*> PlayerPawns;
+	
+	int32 NumPlayers = UGameplayStatics::GetNumPlayerControllers(GetWorld());
+
+	for (int i = 0; i <= (NumPlayers - 1); i++)
+	{
+		if (UGameplayStatics::GetPlayerController(GetWorld(), i)->GetPawn() != nullptr)	
+			PlayerPawns.AddUnique(UGameplayStatics::GetPlayerController(GetWorld(), i)->GetPawn());
+	}
+
+	return PlayerPawns;
 }
 
 void ASimpleDefaultAI::OnMove()

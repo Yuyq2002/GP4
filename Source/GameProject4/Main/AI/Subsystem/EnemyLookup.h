@@ -10,6 +10,16 @@
 /**
  * 
  */
+
+USTRUCT(BlueprintType)
+struct FAIArray
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<ASimpleDefaultAI*> AIList;
+};
+
 UCLASS()
 class GAMEPROJECT4_API UEnemyLookup : public UWorldSubsystem
 {
@@ -20,10 +30,11 @@ private:
 	GENERATED_BODY()
 
 public:
-	TMap<FIntVector, TArray<ASimpleDefaultAI*>> TileMap;
+	UPROPERTY()
+	TMap<FIntVector, FAIArray> TileMap;
 
 	UPROPERTY(BlueprintReadOnly)
-	int TileSize = 1000;
+	int TileSize = 300;
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Tile")
 	void AddAIToTile(FVector Position, ASimpleDefaultAI* ai);

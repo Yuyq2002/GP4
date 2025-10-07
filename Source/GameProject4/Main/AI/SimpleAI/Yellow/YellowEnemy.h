@@ -25,6 +25,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float RotationSpeed = 10.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float PredictionTime = 0.5f;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

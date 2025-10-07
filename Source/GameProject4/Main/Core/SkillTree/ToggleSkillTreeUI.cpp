@@ -3,10 +3,7 @@
 
 #include "ToggleSkillTreeUI.h"
 
-#if WITH_EDITOR
-#include "EditorCategoryUtils.h"
-#endif
-
+//#include "EditorCategoryUtils.h"
 #include "EnhancedInputComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/SlateWrapperTypes.h"
@@ -80,7 +77,7 @@ void UToggleSkillTreeUI::BeginPlay()
 		if (SkillTreeWidget)
 		{
 			SkillTreeWidget->AddToViewport();
-			SkillTreeWidget->SetVisibility(ESlateVisibility::Collapsed);
+			SkillTreeWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 
@@ -110,7 +107,7 @@ void UToggleSkillTreeUI::ToggleSkillTree()
 		return;
 	}
 	
-	if (isSkillTreeToggled)
+	if (bIsSkillTreeToggled)
 	{
 		SkillTreeWidget->SetVisibility(ESlateVisibility::Visible);
 		LocalPlayerController->SetInputMode(FInputModeGameAndUI());
@@ -121,20 +118,20 @@ void UToggleSkillTreeUI::ToggleSkillTree()
 			Pawn->GetMovementComponent()->Deactivate();
 		}
 		
-		isSkillTreeToggled = false;
+		bIsSkillTreeToggled = false;
 	}
 	else
 	{
 		SkillTreeWidget->SetVisibility(ESlateVisibility::Collapsed);
 		LocalPlayerController->SetInputMode(FInputModeGameOnly());
-		LocalPlayerController->SetShowMouseCursor(false);
+		LocalPlayerController->SetShowMouseCursor(true);
 		
 		if (Pawn->GetMovementComponent())
 		{
 			Pawn->GetMovementComponent()->Activate();
 		};
 		
-		isSkillTreeToggled = true;
+		bIsSkillTreeToggled = true;
 	}
 
 }

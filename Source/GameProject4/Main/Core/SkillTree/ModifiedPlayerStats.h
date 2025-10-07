@@ -41,6 +41,9 @@ protected:
 	UPROPERTY()
 	TMap<FName, float> CurrentStats;
 
+	UPROPERTY()
+	TMap<FName, TWeakObjectPtr<UObject>> BoundComponents;
+
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
 	// FStatKeySelector StatToUse;
 	//
@@ -78,8 +81,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
 	float GetStat(FName StatName) const;
 
-	UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats")
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category="ModifiedPlayerStats")
 	void SetStat(FName StatName, float NewValue);
+	// void HandleStatChanged(FName StatName, float NewValue);
+	// UFUNCTION(BlueprintCallable, Category="ModifiedPlayerStats", meta=(ExpandBoolAsExecs="ReturnValue"))
+	// bool CheckStatNameMatch(FName StatA, FName StatB);
 
 	UFUNCTION(BlueprintCallable, Category="Stats")
 	TArray<FName> GetAvailableStatKeys() const;

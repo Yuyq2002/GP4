@@ -3,6 +3,8 @@
 
 #include "ModifiedPlayerStats.h"
 
+#include "GameFramework/ProjectileMovementComponent.h"
+
 
 UModifiedPlayerStats::UModifiedPlayerStats()
 {
@@ -16,6 +18,7 @@ UModifiedPlayerStats::UModifiedPlayerStats()
 
 	// ...
 }
+
 //
 //
 void UModifiedPlayerStats::BeginPlay()
@@ -23,7 +26,6 @@ void UModifiedPlayerStats::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
 }
 
 TArray<FName> UModifiedPlayerStats::GetAvailableStatKeys() const
@@ -64,15 +66,43 @@ float UModifiedPlayerStats::GetStat(FName StatName) const
 	return FoundValue ? *FoundValue : 0.0f;
 }
 
-void UModifiedPlayerStats::SetStat(FName StatName, float NewValue)
+void UModifiedPlayerStats::SetStat_Implementation(FName StatName, float NewValue)
 {
 	float* ExistingValue = CurrentStats.Find(StatName);
-	if (!ExistingValue || !FMath::IsNearlyEqual(*ExistingValue, NewValue))
+	if (!ExistingValue)
 	{
 		CurrentStats.Add(StatName, NewValue);
 		OnStatChanged.Broadcast(StatName, NewValue);
+
+	}
+	else
+	{
+		if (!FMath::IsNearlyEqual(*ExistingValue, NewValue))
+		{
+			*ExistingValue = NewValue;
+			OnStatChanged.Broadcast(StatName, NewValue);
+		}
 	}
 }
+// void UModifiedPlayerStats::HandleStatChanged(FName StatName, float NewValue)
+// {
+// 	if (StatName == "ProjectileSpeed")
+// 	{
+// 		AActor* Owner = GetOwner();
+// 		if (!Owner) return;
+//
+// 		auto* ProjectileComp = Owner->FindComponentByClass<UProjectileMovementComponent>();
+// 		if (!ProjectileComp) return;
+//
+// 		ProjectileComp->InitialSpeed = NewValue;
+// 		ProjectileComp->MaxSpeed = NewValue;
+// 	}
+// }
+
+// bool UModifiedPlayerStats::CheckStatNameMatch(FName StatA, FName StatB)
+// {
+// 	return StatA == StatB && StatA != NAME_None;
+// }
 
 
 

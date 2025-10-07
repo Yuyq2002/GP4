@@ -16,9 +16,7 @@ void AYellowEnemy::Tick(float DeltaTime)
 	{
 		FVector PlayerLoc = TargetPlayer->GetActorLocation();
 		FVector PlayerVel = TargetPlayer->GetVelocity();
-
-		// Predict where the player will be after some time
-		float PredictionTime = 1.0f; // seconds into the future
+		
 		FVector PredictedLoc = PlayerLoc + PlayerVel * PredictionTime;
 
 		// Direction from enemy to predicted location

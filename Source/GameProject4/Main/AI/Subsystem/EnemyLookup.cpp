@@ -11,12 +11,16 @@ void UEnemyLookup::AddAIToTile_Implementation(FVector Position, ASimpleDefaultAI
 	if (TileMap.Contains(Tile))
 	{
 		if (ai != nullptr)
-			TileMap[Tile].AddUnique(ai);
+			TileMap[Tile].AIList.AddUnique(ai);
 	}
 	else
 	{
-		if (ai!=nullptr)
-			TileMap.Add(Tile, {ai});
+		if (ai != nullptr)
+		{
+			FAIArray Temp;
+			Temp.AIList.Add(ai);
+			TileMap.Add(Tile, Temp);
+		}
 	}
 }
 
@@ -32,7 +36,7 @@ void UEnemyLookup::RemoveAIFromTile_Implementation(FVector Position, ASimpleDefa
 {
 	if (TileMap.Contains(WorldToTile(Position)))
 	{
-		if (TileMap[WorldToTile(Position)].Remove(ai) < 0)
+		if (TileMap[WorldToTile(Position)].AIList.Remove(ai) < 0)
 			Debug::Log("Not removed: " + ai->GetName());
 	}
 }
@@ -44,7 +48,7 @@ void UEnemyLookup::RemoveAllReference(ASimpleDefaultAI* ai)
 
 	for (auto& Key : Keys)
 	{
-		TileMap[Key].Remove(ai);
+		TileMap[Key].AIList.Remove(ai);
 	}
 }
 
@@ -68,7 +72,7 @@ FVector UEnemyLookup::TileToWorld(FIntVector TileLocation)
 
 TArray<ASimpleDefaultAI*> UEnemyLookup::FindContentOfTile(FIntVector Tile)
 {
-	return TileMap.FindRef(Tile);
+	return TileMap.FindRef(Tile).AIList;
 }
 
 TArray<ASimpleDefaultAI*> UEnemyLookup::FindAllContentInRadius(FVector center, int tilesDistanceAway)

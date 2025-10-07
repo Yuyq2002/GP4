@@ -41,7 +41,7 @@ protected:
 	
 	void ToggleSkillTree();
 
-	bool isSkillTreeToggled = true;
+	bool bIsSkillTreeToggled = true;
 	
 	UPROPERTY()
 	APlayerController* LocalPlayerController;

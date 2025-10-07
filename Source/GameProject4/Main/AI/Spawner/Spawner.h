@@ -7,6 +7,14 @@
 #include "Main/AI/SimpleAI/Default/SimpleDefaultAI.h"
 #include "Spawner.generated.h"
 
+UENUM(BlueprintType)
+enum class ESpawnLogic : uint8
+{
+	Single			UMETA(DisplayName = "Single"),
+	Interval		UMETA(DisplayName = "Interval"),
+	Chunk			UMETA(DisplayName = "Chunk")
+};
+
 UCLASS()
 class GAMEPROJECT4_API ASpawner : public AActor
 {
@@ -21,10 +29,10 @@ public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
-	UFUNCTION(BlueprintCallable, Category = "UnitSpawning")
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "UnitSpawning")
 	void StartSpawning();
 	
-	UFUNCTION(BlueprintCallable, Category = "UnitSpawning")
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "UnitSpawning")
 	void StopSpawning();
 	
 	UFUNCTION()
@@ -35,32 +43,35 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	TSubclassOf<ASimpleDefaultAI> UnitToSpawn;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data",  meta=(ClampMin="0", UIMin="0"))
-	int AmountOfUnitsToSpawn = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	TSubclassOf<ASimpleAiController> IfNeededAiController;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
-	float InitialSpawnDelay = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	ESpawnLogic SpawnLogic;
+	
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category="Data",  meta=(ClampMin="0", UIMin="0"))
+	int AmountOfUnitsToSpawn;
 
 	UPROPERTY()
-	bool bShowSpawnInterval = false;
+	bool bShowSpawnInterval;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data", meta=(EditCondition="bShowSpawnInterval"))
-	float SpawnInterval = 0.0f;
+	float InitialSpawnDelay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data", meta=(EditCondition="bShowSpawnInterval"))
+	float SpawnInterval;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
-	bool ShouldSpawnHunting = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data", meta=(EditCondition="ShouldSpawnHunting"))
-	bool ShouldHuntAfterTime = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data", meta=(EditCondition="ShouldHuntAfterTime"))
-	float ActivateUnitTime = 0.0f;
+	bool ShouldSpawnHunting;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
-	bool spawnOnBegin = false;
+	bool spawnOnBegin;
 
 	FTimerHandle SpawnTimer;
 	FTimerHandle HuntTimer;

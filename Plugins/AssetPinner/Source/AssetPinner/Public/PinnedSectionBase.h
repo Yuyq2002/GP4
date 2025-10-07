@@ -9,6 +9,7 @@
 class UWrapBox;
 class UEditorUtilityButton;
 class UPinnedAssetSlotBase;
+class USizeBox;
 
 enum class EditState
 {
@@ -27,6 +28,7 @@ class ASSETPINNER_API UPinnedSectionBase : public UEditorUtilityWidget
 	
 public:
 	virtual void NativeConstruct();
+	virtual void NativeDestruct();
 	EditState CheckInEditMode();
 	void AddRecheck(UPinnedAssetSlotBase* Caller, FKey Input);
 
@@ -40,6 +42,8 @@ private:
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent);
 	virtual FReply NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent);
+	virtual FReply NativeOnMouseWheel(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
 	virtual void NativeOnFocusLost(const FFocusEvent& InFocusEvent) override;
 
 private:
@@ -62,4 +66,12 @@ private:
 
 	UPROPERTY()
 	FKey MouseInput;
+
+	UPROPERTY()
+	TArray<USizeBox*> SizeBoxes;
+
+	float MinSize = 30;
+	float Size = 100;
+	float Ratio = 1.25;
+	FString ConfigPath;
 };

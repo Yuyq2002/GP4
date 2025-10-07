@@ -118,6 +118,10 @@ struct FCurrentPatrolPoint
 UCLASS(BlueprintType)
 class GAMEPROJECT4_API ASimpleDefaultAI : public ACharacter,  public IGenericTeamAgentInterface
 {
+public:
+	virtual void Tick(float DeltaSeconds) override;
+
+private:
 	GENERATED_BODY()
 
 public:
@@ -128,7 +132,9 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void BeginPlay() override;
-	
+
+	UFUNCTION(BlueprintCallable, Category="World")
+	UWorld* GetCurrentWorld() const;
 
 	// In AMyAIController.h
 	// In AMyAIController.h
@@ -154,6 +160,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "AI|Behaviour")
 	void StopAllActions();
+
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	void AddAllPlayers();
+
+	UFUNCTION(BlueprintCallable, Category = "Stats")
+	TArray<APawn*> GetAllPlayersInWorld();
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category="Structs")
 	FWorldState worldState;

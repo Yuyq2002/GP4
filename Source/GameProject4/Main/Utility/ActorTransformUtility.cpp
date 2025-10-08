@@ -94,3 +94,8 @@ FVector UActorTransformUtility::GetAlignmentToLocation(AActor* Actor, FVector Al
 
 	return (AlignToLocation + FVector(0, 0, AlignToLocation.Z - ActorAlignmentOffset));
 }
+
+FVector UActorTransformUtility::GetComponentAlignmentToLocation(USceneComponent* Actor, FVector AlignToLocation, EAlignment ActorAlignment)
+{
+	return FVector();
+}

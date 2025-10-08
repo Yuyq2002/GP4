@@ -19,11 +19,11 @@ class GAMEPROJECT4_API UExperienceContainer : public UActorComponent
 	GENERATED_BODY()
 
 	//Experience Orb stuff
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Experience", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Experience", meta = (AllowPrivateAccess = "true"))
 	int32 CurrentExperience;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Experience", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Experience", meta = (AllowPrivateAccess = "true"))
 	int32 SkillPoints;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Experience", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Experience", meta = (AllowPrivateAccess = "true"))
 	int32 ExpRequiredForSkillPoint;
 	
 	// Unlocked skills container

@@ -7,6 +7,7 @@
 #include "GameProject4/Main/Core/ExperienceSystem/ExperienceContainer.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Engine/Engine.h"
 #include "GameFrameWork/Character.h"
 
 class UExperienceContainer;
@@ -14,14 +15,20 @@ void USkill::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+
 	if (Button)
 	{
 		Button->OnClicked.AddDynamic(this, &USkill::OnButtonClicked);
 	}
-	if (SkillCostText)
+
+	if (!SkillData) return;
+
+	if (const FSkillDefinition* Def = SkillData->Skills.Find(SkillTag))
 	{
-		int32 Cost = GetSkillCost();
-		SkillCostText->SetText(FText::AsNumber(Cost));
+		if (SkillCostText)
+		{
+			SkillCostText->SetText(FText::AsNumber(Def->Cost));
+		}
 	}
 }
 
@@ -119,51 +126,89 @@ int32 USkill::GetSkillCost() const
 	return 0;
 }
 
+FText USkill::GetSkillNameText() const
+{
+	if (SkillData)
+	{
+		if (const FSkillDefinition* Def = SkillData->Skills.Find(SkillTag))
+		{
+			return Def->SkillName;
+		}
+	}
+	return FText::FromString("Unknown Skill");
+}
+
+FText USkill::GetSkillDescriptionText() const
+{
+	if (SkillData)
+	{
+		if (const FSkillDefinition* Def = SkillData->Skills.Find(SkillTag))
+		{
+			return Def->SkillDescription;
+		}
+	}
+	return FText::FromString("No description available.");
+}
+
 void USkill::OnButtonClicked()
 {
 	PurchaseSkill();
 	OnSkillClicked.Broadcast(this); //broadcast for skill customization
 }
 
-// void USkill::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-// {
-// 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
-//
-// 	USkillTree* SkillTreeWidget = Cast<USkillTree>(GetParent());
-// 	if (!SkillTreeWidget)
-// 	{
-// 		UWidget* CurrentParent = GetParent();
-// 		while (CurrentParent && !SkillTreeWidget)
-// 		{
-// 			SkillTreeWidget = Cast<USkillTree>(CurrentParent);
-// 			CurrentParent = CurrentParent->GetParent();
-// 		}
-// 	}
-// 	
-// 	if (SkillTreeWidget)
-// 	{
-// 		FVector2D MousePosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
-// 		SkillTreeWidget->ShowSkillTooltip(SkillName, SkillDescription, MousePosition);
-// 	}
-// }
-//
-// void USkill::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
-// {
-// 	Super::NativeOnMouseLeave(InMouseEvent);
-// 	
-// 	USkillTree* SkillTreeWidget = Cast<USkillTree>(GetParent());
-// 	if (!SkillTreeWidget)
-// 	{
-// 		UWidget* CurrentParent = GetParent();
-// 		while (CurrentParent && !SkillTreeWidget)
-// 		{
-// 			SkillTreeWidget = Cast<USkillTree>(CurrentParent);
-// 			CurrentParent = CurrentParent->GetParent();
-// 		}
-// 	}
-// 	
-// 	if (SkillTreeWidget)
-// 	{
-// 		SkillTreeWidget->HideSkillTooltip();
-// 	}
-// }
+void USkill::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
+
+	USkillTree* SkillTreeWidget = Cast<USkillTree>(GetParent());
+	if (!SkillTreeWidget)
+	{
+		UWidget* CurrentParent = GetParent();
+		while (CurrentParent && !SkillTreeWidget)
+		{
+			SkillTreeWidget = Cast<USkillTree>(CurrentParent);
+			CurrentParent = CurrentParent->GetParent();
+		}
+	}
+	// if (SkillTreeWidget)
+	// {
+	// 	FVector2D MousePosition = InMouseEvent.GetScreenSpacePosition();
+	// 	SkillTreeWidget->ShowSkillTooltip(GetSkillNameText(), GetSkillDescriptionText(), MousePosition);
+	// }
+	// if (SkillTreeWidget)
+	// {
+	// 	FVector2D MousePosition = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+	// 	SkillTreeWidget->ShowSkillTooltip(SkillName, SkillDescription, MousePosition);
+	// }
+}
+
+void USkill::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseLeave(InMouseEvent);
+
+	// USkillTree* SkillTreeWidget = Cast<USkillTree>(GetParent());
+	// if (!SkillTreeWidget)
+	// {
+	// 	UWidget* CurrentParent = GetParent();
+	// 	while (CurrentParent && !SkillTreeWidget)
+	// 	{
+	// 		SkillTreeWidget = Cast<USkillTree>(CurrentParent);
+	// 		CurrentParent = CurrentParent->GetParent();
+	// 	}
+	// }
+	// if (SkillTreeWidget)
+	// {
+	// 	SkillTreeWidget->HideSkillTooltip();
+	// }
+	// UWidget* CurrentParent = GetParent();
+	// while (CurrentParent)
+	// {
+	// 	if (USkillTree* SkillTreeWidget = Cast<USkillTree>(CurrentParent))
+	// 	{
+	// 		FVector2D MousePosition = InMouseEvent.GetScreenSpacePosition();
+	// 		SkillTreeWidget->ShowSkillTooltip(GetSkillNameText(), GetSkillDescriptionText(), MousePosition);
+	// 		break;
+	// 	}
+	// 	CurrentParent = CurrentParent->GetParent();
+	// }
+}

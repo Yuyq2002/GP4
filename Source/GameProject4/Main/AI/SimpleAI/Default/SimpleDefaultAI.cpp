@@ -89,10 +89,9 @@ void ASimpleDefaultAI::Tick(float DeltaSeconds)
 	{
 		if (worldState.PlayersInWorld.Num() < 2)
 		{
-			FTimerHandle Handle;
-			GetWorldTimerManager().SetTimer(Handle, this, &ASimpleDefaultAI::AddAllPlayers, 0.5, false);
+			AddAllPlayers();
 		}
-		
+		 
 		APawn* ClosestPlayer = nullptr;
 		APawn* FurthestPlayer = nullptr;
 
@@ -265,11 +264,11 @@ void ASimpleDefaultAI::AddAllPlayers()
 	{
 		for (int i = 0; i <= (NumPlayers - 1); i++)
 		{
-			if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), i)->GetPawn()))
+			if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), i))
 			{
-				worldState.PlayersInWorld.AddUnique(UGameplayStatics::GetPlayerController(GetWorld(), i)->GetPawn());
+				if(APawn* Pawn = PlayerController->GetPawn())
+				worldState.PlayersInWorld.AddUnique(Pawn);
 			}
-			
 		}
 	}
 }

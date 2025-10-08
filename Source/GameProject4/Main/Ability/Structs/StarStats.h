@@ -19,8 +19,20 @@ struct FStarStats
 	UPROPERTY(BlueprintReadWrite)
 	EElement ElementType;
 
-	UPROPERTY(BlueprintReadOnly)
-	UTexture2D* Icon;
+	UPROPERTY(BlueprintReadWrite)
+	UTexture2D* TextureIcon;
+
+	UPROPERTY(BlueprintReadWrite)
+	UMaterial* MaterialIcon;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bUseMatrialBackground;
+
+	UPROPERTY(BlueprintReadWrite)
+	UTexture2D* TextureBackground;
+
+	UPROPERTY(BlueprintReadWrite)
+	UMaterial* MaterialBackground;
 
 	UPROPERTY(BlueprintReadOnly)
 	float MaxMana;
@@ -53,7 +65,22 @@ struct FDataTableStarStats : public FTableRowBase
 	EElement ElementType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTexture2D* Icon;
+	bool bUseMatrial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "!bUseMatrial"))
+	UTexture2D* TextureIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "bUseMatrial"))
+	UMaterial* MaterialIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bUseMatrialBackground;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "!bUseMatrialBackground"))
+	UTexture2D* TextureBackground;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "bUseMatrialBackground"))
+	UMaterial* MaterialBackground;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	UAbilityData* PrimaryAbility;

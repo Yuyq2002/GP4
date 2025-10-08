@@ -18,15 +18,20 @@ struct FSkillDefinition
 {
 	GENERATED_BODY()
 	static int32 SkillCounter;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill")
 	FName SkillID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill")
+	FText SkillDescription;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill")
 	FText SkillName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill")
 	int32 Cost;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	UTexture2D* SkillIcon;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill", meta = (Categories = "Skill"))
 	//TArray<FGameplayTag> PrerequisiteSkills;

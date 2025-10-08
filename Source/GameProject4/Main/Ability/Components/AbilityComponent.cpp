@@ -52,7 +52,14 @@ FStarStats* UAbilityComponent::AddStar(EElement InElementType)
 
 	FStarStats NewStar;
 	NewStar.ElementType = InElementType;
-	NewStar.Icon = Entry->Icon;
+	if (Entry->bUseMatrial)
+		NewStar.MaterialIcon = Entry->MaterialIcon;
+	else
+		NewStar.TextureIcon = Entry->TextureIcon;
+	if (Entry->bUseMatrialBackground)
+		NewStar.MaterialBackground = Entry->MaterialBackground;
+	else
+		NewStar.TextureBackground = Entry->TextureBackground;
 	NewStar.MaxMana = Entry->Mana;
 	NewStar.Mana = Entry->Mana;
 	NewStar.PrimaryAbility = Entry->PrimaryAbility;
@@ -121,7 +128,14 @@ void UAbilityComponent::SetStar_Implementation(EActionType ActionType, EElement 
 
 			FStarStats NewStar;
 			NewStar.ElementType = InElementType;
-			NewStar.Icon = Entry->Icon;
+			if (Entry->bUseMatrial)
+				NewStar.MaterialIcon = Entry->MaterialIcon;
+			else
+				NewStar.TextureIcon = Entry->TextureIcon;
+			if (Entry->bUseMatrialBackground)
+				NewStar.MaterialBackground = Entry->MaterialBackground;
+			else
+				NewStar.TextureBackground = Entry->TextureBackground;
 			NewStar.MaxMana = Entry->Mana;
 			NewStar.Mana = Entry->Mana;
 			NewStar.PrimaryAbility = Entry->PrimaryAbility;

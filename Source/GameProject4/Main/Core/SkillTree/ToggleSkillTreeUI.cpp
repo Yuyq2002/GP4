@@ -123,7 +123,7 @@ void UToggleSkillTreeUI::ToggleSkillTree()
 	else
 	{
 		SkillTreeWidget->SetVisibility(ESlateVisibility::Collapsed);
-		LocalPlayerController->SetInputMode(FInputModeGameOnly());
+		LocalPlayerController->SetInputMode(FInputModeGameAndUI());
 		LocalPlayerController->SetShowMouseCursor(true);
 		
 		if (Pawn->GetMovementComponent())

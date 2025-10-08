@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Skill.generated.h"
 class UTextBlock;
+class UBorder;
 class USkillData;
 /**
  * 
@@ -33,8 +34,8 @@ public:
 	USkillData* SkillData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill")
 	FGameplayTag SkillTag;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill")
-	FName TargetStatName;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill")
+	// FName TargetStatName;
 	
 	UFUNCTION(BlueprintCallable, Category = "Skills")
 	bool IsPurchasable();
@@ -42,24 +43,26 @@ public:
 	void PurchaseSkill();
 	UFUNCTION(BlueprintCallable, Category = "Skills")
 	bool IsUnlocked() const { return bIsSkillUnlocked; }
+	
 	//Functions for deducting skill points for purchasing skills
 	UFUNCTION(BlueprintCallable, Category = "Skills")
 	int32 GetSkillCost() const;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SkillCostText;
+
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	FText GetSkillNameText() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	FText GetSkillDescriptionText() const;
+	
 	//for a more customizable skill tree
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnSkillClicked OnSkillClicked;
 	
-	
+
 	bool bIsSkillUnlocked = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
-	FText SkillName;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
-	FText SkillDescription;
-	
 protected:
 	//Functions for deducting skill points for purchasing skills
 	UFUNCTION()
@@ -71,6 +74,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "UI")
 	UButton* Button;
 
-	// virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	// virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 };

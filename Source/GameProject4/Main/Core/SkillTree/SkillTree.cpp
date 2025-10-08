@@ -2,7 +2,6 @@
 
 
 #include "SkillTree.h"
-
 #include "ToggleSkillTreeUI.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/Character.h"
@@ -19,10 +18,6 @@ USkill* PendingConnectionStart = nullptr;
 void USkillTree::NativeConstruct()
 {
 	Super::NativeConstruct();
-	// if (TooltipBox)
-	// {
-	// 	TooltipBox->SetVisibility(ESlateVisibility::Collapsed);
-	// }
 	
 	ACharacter* PlayerCharacter = Cast<ACharacter>(GetOwningPlayerPawn());
 	if (!PlayerCharacter)
@@ -43,6 +38,7 @@ void USkillTree::NativeConstruct()
 		}
 	}
 }
+
 
 FReply USkillTree::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
@@ -70,6 +66,24 @@ void USkillTree::CloseSkillTree()
 	bIsSkillTreeToggled = true;
 }
 
+ //void USkillTree::ShowSkillTooltip(const FText& Name, const FText& Description, const FVector2D& ScreenPosition)
+ //{
+ //	/*if (SkillTooltip)
+ //	{
+ //		SkillTooltip->SetSkillTooltipInfo(Name, Description);
+ //		SkillTooltip->SetVisibility(ESlateVisibility::Visible);
+ //		SkillTooltip->SetPositionInViewport(ScreenPosition); 
+ //	}*/
+ //}
+
+ //void USkillTree::HideSkillTooltip()
+ //{
+ //	/*if (SkillTooltip)
+ //	{
+ //		SkillTooltip->SetVisibility(ESlateVisibility::Hidden);
+ //	}*/
+ //}
+
 
 void USkillTree::HandleLevelUp(AActor* OwnerActor, int32 NewSkillPoints)
 {
@@ -90,31 +104,3 @@ void USkillTree::RefreshSkillPoints()
 		SkillPointsText->SetText(DisplayText);
 	}
 }
-
-// void USkillTree::ShowSkillTooltip(const FText& SkillName, const FText& Description, const FVector2D& Position)
-// {
-// 	if (TooltipBox && TooltipTextDiscription)
-// 	{
-// 		FText FormattedText = FText::Format(
-// 			NSLOCTEXT("SkillTree", "TooltipFormat", "{0}\n\n{1}"),
-// 			SkillName,
-// 			Description
-// 		);
-// 		TooltipTextDiscription->SetText(FormattedText);
-// 		
-// 		if (UCanvasPanelSlot* TooltipSlot = Cast<UCanvasPanelSlot>(TooltipBox->Slot))
-// 		{
-// 			TooltipSlot->SetPosition(Position + FVector2D(10.0f, 10.0f)); // Offset from cursor
-// 		}
-// 		
-// 		TooltipBox->SetVisibility(ESlateVisibility::HitTestInvisible);
-// 	}
-// }
-//
-// void USkillTree::HideSkillTooltip()
-// {
-// 	if (TooltipBox)
-// 	{
-// 		TooltipBox->SetVisibility(ESlateVisibility::Collapsed);
-// 	}
-// }

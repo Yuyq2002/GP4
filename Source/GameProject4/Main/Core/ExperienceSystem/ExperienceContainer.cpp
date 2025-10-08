@@ -12,7 +12,7 @@ UExperienceContainer::UExperienceContainer()
 	//Experience stuff
 	CurrentExperience = 0;
 	SkillPoints = 0;
-	ExpRequiredForSkillPoint = 3;
+	ExpRequiredForSkillPoint = 10;
 	
 	// ...
 }
@@ -43,6 +43,7 @@ void UExperienceContainer::AddExperience(int32 Amount)
 void UExperienceContainer::OnSkillPointGained()
 {
 	SkillPoints++;
+	ExpRequiredForSkillPoint += 1;
 	UE_LOG(LogTemp, Warning, TEXT("Skill Point Gained! Total Skill Points: %d"), SkillPoints);
 	OnSkillPointsChanged.Broadcast(GetOwner(), SkillPoints);
 }

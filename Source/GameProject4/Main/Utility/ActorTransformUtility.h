@@ -35,4 +35,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static FVector GetAlignmentToLocation(AActor* Actor, FVector AlignToLocation, EAlignment ActorAlignment = EAlignment::Origin);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static FVector GetComponentAlignmentToLocation(USceneComponent* Component, FVector AlignToLocation, EAlignment ActorAlignment = EAlignment::Origin);
 };

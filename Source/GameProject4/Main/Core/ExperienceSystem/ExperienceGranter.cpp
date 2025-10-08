@@ -1,5 +1,6 @@
 #include "ExperienceGranter.h"
 #include "ExperienceContainer.h"
+#include "Engine/World.h"
 
 UExperienceGranter::UExperienceGranter()
 {

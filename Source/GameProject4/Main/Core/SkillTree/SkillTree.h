@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SkillTree.generated.h"
 
+class UToolTip;
 class UExperienceContainer;
 /**
  * 
@@ -25,22 +26,15 @@ class GAMEPROJECT4_API USkillTree : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidgetOptional), Category = "Tooltip")
+	// UToolTip* SkillTooltip;
 
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* SkillPointsText;
-	
-	UPROPERTY(EditAnywhere)
-	UButton* SkillDescription;
-	
+
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "UI")
 	UCanvasPanel* CanvasPanel;
-	//
-	// UPROPERTY(meta=(BindWidget))
-	// UBorder* TooltipBox;
-	//
-	// UPROPERTY(meta=(BindWidget))
-	// UTextBlock* TooltipTextDiscription;
-	
+
 //for making the skill tree more easily customizable
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	TArray<USkill*> SkillNodes;
@@ -57,11 +51,12 @@ public:
 	void SetPlayerStats(UModifiedPlayerStats* InStats) { PlayerStats = InStats; }
 	UFUNCTION(BlueprintCallable, Category="UI")
 	void CloseSkillTree();
-	// UFUNCTION()
-	// void ShowSkillTooltip(const FText& SkillName, const FText& Description, const FVector2D& Position);
+	// UFUNCTION(BlueprintCallable)
+	// void ShowSkillTooltip(const FText& Name, const FText& Description, const FVector2D& ScreenPosition);
 	//
-	// UFUNCTION()
+	// UFUNCTION(BlueprintCallable)
 	// void HideSkillTooltip();
+
 private:
 	UPROPERTY()
 	UExperienceContainer* ExperienceComponent;

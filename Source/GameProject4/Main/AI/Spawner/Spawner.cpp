@@ -56,7 +56,8 @@ void ASpawner::SpawnUnits()
 				
 		if (ShouldSpawnHunting)
 		{
-			unit->SetHunting(true);
+			if (IsValid(unit))
+				unit->SetHunting(true);
 		}
 
 		AmountOfUnitsToSpawn--;

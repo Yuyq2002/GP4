@@ -37,7 +37,6 @@ protected:
 public:	
 	FStarStats** EvaluateActionToSet(EActionType ActionType);
 	FStarStats* AddStar(EElement InElementType);
-	void UpdateUltimate();
 
 	UFUNCTION(BlueprintCallable)
 	EActionType GetEmptyAction();
@@ -82,9 +81,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	UDataTable* StarDataTable;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	UUltimateData* UltimateData;
-
 	UPROPERTY()
 	UModifiedPlayerStats* ModifierCollection;
 
@@ -96,8 +92,6 @@ private:
 
 	UPROPERTY(Replicated, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	TArray<EElement> UnlockedElements;
-
-	FActiveUltimate ActiveUltimate;
 
 private:
 	int MaxStars = 3;

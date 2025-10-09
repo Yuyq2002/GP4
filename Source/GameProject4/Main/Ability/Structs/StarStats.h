@@ -22,17 +22,17 @@ struct FStarStats
 	UPROPERTY(BlueprintReadWrite)
 	UTexture2D* TextureIcon;
 
-	UPROPERTY(BlueprintReadWrite)
-	UMaterial* MaterialIcon;
+	//UPROPERTY(BlueprintReadWrite)
+	//UMaterial* MaterialIcon;
 
-	UPROPERTY(BlueprintReadWrite)
-	bool bUseMatrialBackground;
+	//UPROPERTY(BlueprintReadWrite)
+	//bool bUseMatrialBackground;
 
-	UPROPERTY(BlueprintReadWrite)
-	UTexture2D* TextureBackground;
+	//UPROPERTY(BlueprintReadWrite)
+	//UTexture2D* TextureBackground;
 
-	UPROPERTY(BlueprintReadWrite)
-	UMaterial* MaterialBackground;
+	//UPROPERTY(BlueprintReadWrite)
+	//UMaterial* MaterialBackground;
 
 	UPROPERTY(BlueprintReadOnly)
 	float MaxMana;
@@ -64,23 +64,23 @@ struct FDataTableStarStats : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EElement ElementType;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bUseMatrial;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	//bool bUseMaterial;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "!bUseMatrial"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UTexture2D* TextureIcon;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "bUseMatrial"))
-	UMaterial* MaterialIcon;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	//UMaterial* MaterialIcon;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bUseMatrialBackground;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	//bool bUseMaterialBackground;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "!bUseMatrialBackground"))
-	UTexture2D* TextureBackground;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	//UTexture2D* TextureBackground;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (EditCondition = "bUseMatrialBackground"))
-	UMaterial* MaterialBackground;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	//UMaterial* MaterialBackground;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	UAbilityData* PrimaryAbility;

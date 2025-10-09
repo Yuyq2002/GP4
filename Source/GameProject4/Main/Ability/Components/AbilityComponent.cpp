@@ -52,14 +52,7 @@ FStarStats* UAbilityComponent::AddStar(EElement InElementType)
 
 	FStarStats NewStar;
 	NewStar.ElementType = InElementType;
-	if (Entry->bUseMatrial)
-		NewStar.MaterialIcon = Entry->MaterialIcon;
-	else
-		NewStar.TextureIcon = Entry->TextureIcon;
-	if (Entry->bUseMatrialBackground)
-		NewStar.MaterialBackground = Entry->MaterialBackground;
-	else
-		NewStar.TextureBackground = Entry->TextureBackground;
+	NewStar.TextureIcon = Entry->TextureIcon;
 	NewStar.MaxMana = Entry->Mana;
 	NewStar.Mana = Entry->Mana;
 	NewStar.PrimaryAbility = Entry->PrimaryAbility;
@@ -68,27 +61,6 @@ FStarStats* UAbilityComponent::AddStar(EElement InElementType)
 	Stars.Add(NewStar);
 
 	return &Stars.Last();
-}
-
-void UAbilityComponent::UpdateUltimate()
-{
-	if (!PrimaryStar || !SecondaryStar)
-		return;
-
-	int32 Element = int32(PrimaryStar->ElementType | SecondaryStar->ElementType);
-	UAbilityData* UltimateToSet = nullptr;
-
-	for (auto& Ultimate : UltimateData->UltimateMap)
-	{
-		if (Ultimate.Element == Element)
-		{
-			UltimateToSet = Ultimate.Ultimate;
-
-			break;
-		}
-	}
-
-	ActiveUltimate.Ultimate = UltimateToSet;
 }
 
 EActionType UAbilityComponent::GetEmptyAction()
@@ -128,14 +100,7 @@ void UAbilityComponent::SetStar_Implementation(EActionType ActionType, EElement 
 
 			FStarStats NewStar;
 			NewStar.ElementType = InElementType;
-			if (Entry->bUseMatrial)
-				NewStar.MaterialIcon = Entry->MaterialIcon;
-			else
-				NewStar.TextureIcon = Entry->TextureIcon;
-			if (Entry->bUseMatrialBackground)
-				NewStar.MaterialBackground = Entry->MaterialBackground;
-			else
-				NewStar.TextureBackground = Entry->TextureBackground;
+			NewStar.TextureIcon = Entry->TextureIcon;
 			NewStar.MaxMana = Entry->Mana;
 			NewStar.Mana = Entry->Mana;
 			NewStar.PrimaryAbility = Entry->PrimaryAbility;
@@ -152,8 +117,6 @@ void UAbilityComponent::SetStar_Implementation(EActionType ActionType, EElement 
 			EElement SecondElement = (Temp) ? (*Temp).ElementType : EElement::None;
 		}
 	}
-
-	UpdateUltimate();
 
 	TArray<FStarStats> NewList = { PrimaryStar ? *PrimaryStar : FStarStats(), SecondaryStar ? *SecondaryStar : FStarStats(), DashStar ? *DashStar : FStarStats() };
 	SyncStarStats(NewList);
@@ -203,8 +166,6 @@ void UAbilityComponent::RotateElement_Implementation()
 	DashStar = SecondaryStar;
 	SecondaryStar = PrimaryStar;
 	PrimaryStar = Temp;
-
-	UpdateUltimate();
 
 	SyncRotation();
 }
@@ -306,14 +267,14 @@ void UAbilityComponent::DashAction_Implementation()
 
 void UAbilityComponent::DualElementAction_Implementation()
 {
-	if (ActiveUltimate.Ultimate == nullptr || ActiveUltimate.Gauge <= UltimateData->MaxGauge)
-		return;
+	//if (ActiveUltimate.Ultimate == nullptr || ActiveUltimate.Gauge <= UltimateData->MaxGauge)
+	//	return;
 
-	ActiveUltimate.Gauge = 0;
-	AActor* Parent = GetOwner();
-	AAbilityProjectileBase* NewProjectile = GetWorld()->SpawnActor<AAbilityProjectileBase>(ActiveUltimate.Ultimate->Projectile, Parent->GetActorLocation(), Parent->GetActorForwardVector().Rotation());
-	NewProjectile->SetEffects(ActiveUltimate.Ultimate->Effects);
-	NewProjectile->SetupProjectile(Parent, ModifierCollection, ActiveUltimate.Ultimate->ProjectileData);
+	//ActiveUltimate.Gauge = 0;
+	//AActor* Parent = GetOwner();
+	//AAbilityProjectileBase* NewProjectile = GetWorld()->SpawnActor<AAbilityProjectileBase>(ActiveUltimate.Ultimate->Projectile, Parent->GetActorLocation(), Parent->GetActorForwardVector().Rotation());
+	//NewProjectile->SetEffects(ActiveUltimate.Ultimate->Effects);
+	//NewProjectile->SetupProjectile(Parent, ModifierCollection, ActiveUltimate.Ultimate->ProjectileData);
 }
 
 
